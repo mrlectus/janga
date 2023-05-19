@@ -1,0 +1,59 @@
+/* Variables  */
+body, html{
+    --primary-color: green;
+    /* --primary-color: #0460A7; */
+    --primary-color-2: #004479;
+    --btn-primary-2-bg: #E7F4FF;
+}
+
+
+.table thead th{
+    padding: 0.5rem 0.5rem;
+}
+
+.steps-count-wrapper{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.steps-count{
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+.steps-count::before{
+    content: '';
+    height: 1px;
+    /* width: 100px; */
+    background: #fff;
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 0;
+}
+.steps-count .step{
+    width: 43px;
+    height: 43px;
+    border-radius: 1000px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--primary-color-2);
+    border: 1px solid #FFFFFF;
+    color: #fff;
+
+    margin: 0 20px;
+    z-index: 0;
+}
+.steps-count .step:first-child{
+    margin: 0 20px 0 0;
+}
+.steps-count .step:last-child{
+    margin: 0 0 0 20px;
+}
+.steps-count .step.active{
+    background: #fff;
+    border: 1px solid #FFFFFF;
+    color: var(--primary-color-2);
+}
