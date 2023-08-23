@@ -253,7 +253,6 @@ class CreateUser extends Component {
 
 
       createUser = async (e) => {
-
         this.setState({loading: true, disabled: true})
         var obj = {
           method: "POST",
@@ -302,15 +301,82 @@ class CreateUser extends Component {
              });
               this.setState({ loading: false })
            } else if( responseJson.message === "Created User Profile Successfully" ) {
+             // Swal.fire({
+             //   title: "Success",
+             //   text: "User profile created successfully",
+             //   icon: "success",
+             //   confirmButtonText: "OK",
+             // });
+             this.updateUserStatus(responseJson.userid);
+             // this.setState({ loading: false })
+             // this.props.history.push('/create-user')
+           }
+          })
+          .catch((error) => {
+            this.setState({ loading: false, disabled: false });
+            Swal.fire({
+              title: "Error!",
+              text: error.message,
+              icon: "error",
+              confirmButtonText: "OK",
+            });
+          });
+      };
+
+      updateUserStatus = async (userid) => {
+        this.setState({loading: true, disabled: true});
+        console.warn(userid);
+        var obj = {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+          body: JSON.stringify({
+            userid: userid,
+            userstatus: "pending"
+          }),
+        };
+        fetch(`${baseUrl}UsersMgt/UpdateUserStatus`, obj)
+          .then((response) => response.json())
+          .then((responseJson) => {
+           console.warn(responseJson)
+           if(responseJson.status === 401){
              Swal.fire({
-               title: "Success",
-               text: "User profile created successfully",
-               icon: "success",
+               title: "Unauthorized",
+               text: responseJson.error,
+               icon: "error",
                confirmButtonText: "OK",
              });
              this.setState({ loading: false })
-             this.props.history.push('/create-user')
            }
+           // else if(responseJson.message.includes("already exists")) {
+           //   Swal.fire({
+           //     title: "Duplicate",
+           //     text: "Email is already taken!",
+           //     icon: "error",
+           //     confirmButtonText: "OK",
+           //   });
+           //   this.setState({ loading: false })
+           // } else if(responseJson.message.includes("Telephone is already taken!")){
+           //   Swal.fire({
+           //     title: "Duplicate",
+           //     text: "Telephone is already taken!",
+           //     icon: "error",
+           //     confirmButtonText: "OK",
+           //   });
+           //    this.setState({ loading: false })
+           // } else if( responseJson.message === "Created User Profile Successfully" ) {
+           //   Swal.fire({
+           //     title: "Success",
+           //     text: "User profile created successfully",
+           //     icon: "success",
+           //     confirmButtonText: "OK",
+           //   });
+           //   this.setState({ loading: false })
+           //   this.props.history.push('/create-user')
+           // }
           })
           .catch((error) => {
             this.setState({ loading: false, disabled: false });
@@ -356,7 +422,7 @@ class CreateUser extends Component {
         return (
           <div className="g-sidenav-show">
             <Sidebar />
-         <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" style={{width: '80%', float: 'right'}}>
+         <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" id="dashboard">
         <div class="container-fluid px-4">
         <div class="rown">
           <div class="col-12">

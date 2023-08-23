@@ -43,13 +43,18 @@ class Login extends Component {
                 fetch(`${baseUrl}Admin/login`, obj)
                   .then((response) => response.json())
                   .then((responseJson) => {
-                    // console.warn(responseJson.token);
-                    if(responseJson.email === "superadmin@superadmin.com"){
+                    console.warn(responseJson);
+                    // if(responseJson.email === "superadmin@superadmin.com"){
                       localStorage.setItem("email", responseJson.email.trim());
                       localStorage.setItem("canView", responseJson.canview);
                       localStorage.setItem("canCreate", responseJson.cancreate);
                       localStorage.setItem("canApprove", responseJson.canapprove);
-                    }
+                      localStorage.setItem("payments", responseJson.payments);
+                      localStorage.setItem("license", responseJson.license);
+                      localStorage.setItem("inspection", responseJson.inspection);
+                      localStorage.setItem("registration", responseJson.registration);
+                      localStorage.setItem("premises", responseJson.premises);
+                    // }
                     if (responseJson.message === "Login Successfull") {
                       this.setState({ loading: false });
                       localStorage.setItem("userid", responseJson.userid);
@@ -117,7 +122,7 @@ class Login extends Component {
                           }}
                         />
 
-                        <h5 className="nicfostText text-dark" style={{position: 'relative', fontWeight:'bold', top: 45, textAlign:'center'}}>NIGERIAN COUNCIL OF FOOD SCIENCE AND TECHNOLOGY (NiCFOsT)</h5>
+                        <h5 className="nicfostText text-dark" style={{position: 'relative', fontWeight:'bold', top: 45, textAlign:'center'}}>NIGERIAN COUNCIL OF FOOD SCIENCE AND TECHNOLOGY (NiCFoST)</h5>
                        <div className="text-center" style={{display:'flex', flexDirection: 'column', alignSelf:'center'}}>
                         <h6 style={{position: 'relative', top: 85, textAlign:'center'}}>Sign in to continue</h6>
                         </div>

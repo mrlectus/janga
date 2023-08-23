@@ -12,7 +12,7 @@ import "datatables.net-buttons/js/buttons.colVis.js";
 import "datatables.net-buttons/js/buttons.flash.js";
 import "datatables.net-buttons/js/buttons.html5.js";
 import "datatables.net-buttons/js/buttons.print.js";
-import $ from "jquery";
+// import $ from "jquery";
 import moment from 'moment';
 import ReactToPrint from "react-to-print";
 import { DownloadExcel } from "react-excel-export";
@@ -232,7 +232,7 @@ class PrintPremisesRecord extends Component {
         const indexOfFirstPost = parseInt(indexOfLastPost) - parseInt(postsPerPage);
         const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
         try {
-          return currentPosts.map((item, index) => {
+          return typeof(data) !== undefined && currentPosts.map((item, index) => {
             return (
                 <tr>
                  <td className="text-xs text-capitalize font-weight-bold">{postsPerPage * (currentPage-1)+index+1}</td>
@@ -261,9 +261,13 @@ class PrintPremisesRecord extends Component {
     render(){
       const { isLoading } = this.state;
         return(
-        <div className="g-sidenav-show">
+        <div className="container">
+        <div className="row">
+        <div className="col-md-2">
           <Sidebar />
-       <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg " style={{width: '80%', float: 'right'}}>
+        </div>
+        <div className="col-md-10">
+       <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg " id="dashboard">
          <div class="container-fluid px-4">
          <div class="rown">
            <div class="col-12">
@@ -731,6 +735,8 @@ class PrintPremisesRecord extends Component {
              </div>
              </div>
          </main>
+         </div>
+         </div>
           </div>
         )
     }

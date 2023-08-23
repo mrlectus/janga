@@ -62,7 +62,7 @@ class AllFoodScientists extends Component {
         await fetch(`${baseUrl}Registration/getAllRegistration`, obj)
           .then((response) => response.json())
           .then((responseJson) => {
-            console.warn(responseJson);
+            // console.warn(responseJson);
             if (responseJson.status === 401) {
                 this.setState({ loading: false });
                 Swal.fire({
@@ -194,7 +194,7 @@ class AllFoodScientists extends Component {
         const indexOfFirstPost = indexOfLastPost - postsPerPage;
         const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
         try {
-          return currentPosts.map((item, index) => {
+          return typeof(data) !== undefined && currentPosts.map((item, index) => {
             return (
                 <tr>
                <td className="text-xs font-weight-bold">{index +1}</td>

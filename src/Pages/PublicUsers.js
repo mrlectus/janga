@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import Sidebar from '../Components/Sidebar';
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
 import { Form, Spinner } from "react-bootstrap";
 import { baseUrl } from "../Components/BaseUrl";
 import $ from "jquery";
@@ -565,7 +564,7 @@ class AdminUsers extends PureComponent {
                               </div>
                             </a>
                           </li>
-                          {localStorage.getItem("email") !== null &&
+                            {localStorage.getItem("email") === "superadmin@superadmin.com" &&
                             <li class="mb-2" id = { item.userId } onClick={() => this.getEnabledUserDetails(item.userId)} data-bs-toggle="modal" data-bs-target="#enableModal">
                               <a class="dropdown-item border-radius-md" href="javascript:;">
                                 <div class="d-flex py-1">
@@ -576,7 +575,7 @@ class AdminUsers extends PureComponent {
                               </a>
                             </li>
                           }
-                            {localStorage.getItem("email") !== null &&
+                              {localStorage.getItem("email") === "superadmin@superadmin.com" &&
                             <li class="mb-2" id = { item.userId } onClick={() => this.getDisabledUserDetails(item.userId)} data-bs-toggle="modal" data-bs-target="#disableModal">
                               <a class="dropdown-item border-radius-md" href="javascript:;">
                                 <div class="d-flex py-1">
@@ -636,19 +635,23 @@ class AdminUsers extends PureComponent {
   render(){
     const { isLoading, userData, disabledUserData, enabledUserData, isEnabledLoading, isDisabledLoading } = this.state;
     return(
-      <div className="g-sidenav-show">
+      <div className="container">
+      <div className="row">
+      <div className="col-md-2">
         <Sidebar />
-        <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" style={{width: '80%', float: 'right'}}>
+      </div>
+      <div className="col-md-10">
+        <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" id="dashboard">
           <div class="container-fluid px-4">
           <div class="rown">
             <div class="col-12">
               <div class="card my-3">
                 <div class="card-header pb-4 bg-success">
                   <div class="d-flex flex-wrap align-items-center justify-content-between">
-                    <h5 className="text-light">All Admin Users</h5>
-                    <div class="d-flex align-items-center">
+                    <h5 className="text-light">All Public Users</h5>
+                    {/*<div class="d-flex align-items-center">
                       <button class="btn bg-warning font-weight-bold mb-0 text-dark"  data-bs-toggle="modal" data-bs-target="#createUser" >Create User<span class="iconify" data-icon="carbon:add" style={{fontSize: 'large', fontWeight: 'bold'}}></span></button>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -995,7 +998,7 @@ class AdminUsers extends PureComponent {
                </div>
                </div>
 
-               <button
+              {/* <button
                  disabled={this.state.isDisabled}
                  style={{
                    alignSelf: "center",
@@ -1010,11 +1013,11 @@ class AdminUsers extends PureComponent {
                    <Spinner animation="border" variant="light" size="sm" />
                  ) : (
                    <span className="font-weight-bold">
-                     {/* APPLY <i class="fas fa-chevron-right"></i> */}
+
                       CREATE USER
                    </span>
                  )}
-               </button>
+               </button> */}
 
 
                </div>
@@ -1032,9 +1035,9 @@ class AdminUsers extends PureComponent {
                 </div>
                 </div>
                 </div>
-
-
           </main>
+          </div>
+          </div>
       </div>
     )
   }

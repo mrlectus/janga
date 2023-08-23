@@ -125,7 +125,7 @@ class PrintFoodScientistRecord extends PureComponent {
         .catch((error) => {
           Swal.fire({
             title: "Error!",
-            text: error.message,
+            text: "An error occurred. Please try again later.",
             icon: "error",
             confirmButtonText: "OK",
           });
@@ -239,7 +239,7 @@ class PrintFoodScientistRecord extends PureComponent {
       const indexOfFirstPost = indexOfLastPost - postsPerPage;
       const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
       try {
-        return currentPosts.map((item, index) => {
+        return typeof(data) !== undefined && currentPosts.map((item, index) => {
           return (
             <tr>
              <td className="text-xs font-weight-bold">{postsPerPage * (currentPage-1)+index+1}</td>
@@ -248,8 +248,8 @@ class PrintFoodScientistRecord extends PureComponent {
              <td className="text-xs font-weight-bold">{item.contactemail}</td>
              <td className="text-xs font-weight-bold">{item.contacttelephone}</td>
              <td className="text-xs font-weight-bold">{item.state}</td>
-             <td className="text-xs font-weight-bold">{item.nifstregistrationnumber}</td>
-             <td className="text-xs font-weight-bold">{item.applicationstatus}</td>
+             <td className="text-xs font-weight-bold">{item.registrationnumber}</td>
+             <td className="text-xs font-weight-bold">{item.applicationstatus.toUpperCase()}</td>
              <td className="text-xs font-weight-bold">{moment(item.applicationdate).format('LL')}</td>
              <td className="text-xs font-weight-bold">{moment(item.licensedate).format('LL') === "Invalid date" ?null : moment(item.licensedate).format('LL')}</td>
             <td></td>
@@ -272,9 +272,13 @@ class PrintFoodScientistRecord extends PureComponent {
   render(){
     const { isLoading, loading, isSubmissionLoading } = this.state;
       return(
-      <div>
+      <div className="container">
+      <div className="row">
+      <div className="col-md-2">
         <Sidebar />
-     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" style={{width: '80%', float: 'right'}}>
+      </div>
+    <div className="col-md-10">
+     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" id="dashboard">
        <div class="container-fluid px-4">
        <div class="rown">
          <div class="col-12">
@@ -1343,6 +1347,8 @@ class PrintFoodScientistRecord extends PureComponent {
          </div>
          </div>
       </main>
+      </div>
+      </div>
         </div>
       )
   }

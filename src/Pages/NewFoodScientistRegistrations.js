@@ -4,6 +4,7 @@ import { Spinner } from "react-bootstrap";
 import { baseUrl } from "../Components/BaseUrl";
 import { Link, Redirect } from "react-router-dom";
 import Sidebar from '../Components/Sidebar';
+import DatePicker from 'react-date-picker';
 import "jquery/dist/jquery.min.js";
 import "datatables.net-dt/js/dataTables.dataTables";
 import "datatables.net-dt/css/jquery.dataTables.min.css";
@@ -30,6 +31,7 @@ class NewFoodScientistRegistrations extends PureComponent {
       data: [],
       file: [],
       fileBase64: "",
+      startDate: "",
       formid: "",
       noData: false,
       loading: false,
@@ -54,13 +56,13 @@ class NewFoodScientistRegistrations extends PureComponent {
       this.handleChange = this.handleChange.bind(this);
       this.handleLicenceDate = this.handleLicenceDate.bind(this);
       this.handleApprovalChange = this.handleApprovalChange.bind(this);
+      this.handleDateChange = this.handleDateChange.bind(this);
       // this.handleFileChange = this.handleFeeChange.bind(this);
   }
 
   print(){
     window.print()
   }
-
 
     handleChange(e) {
       this.setState({ selectValue: e.target.value });
@@ -72,6 +74,12 @@ class NewFoodScientistRegistrations extends PureComponent {
 
     handleLicenceDate(e){
       this.setState({licensedate: e.target.value})
+    }
+
+    handleDateChange(date){
+      this.setState({
+       startDate: date
+     })
     }
 
     async handleFileChange(e){
@@ -89,7 +97,6 @@ class NewFoodScientistRegistrations extends PureComponent {
           };
       });
     }
-
 
 
     getFileUpload(formid){
@@ -115,7 +122,7 @@ class NewFoodScientistRegistrations extends PureComponent {
       await fetch(`${baseUrl}Registration/uploadRegistrationCertificate`, obj)
         .then((response) => response.json())
         .then((responseJson) => {
-          console.warn(responseJson);
+          // console.warn(responseJson);
           // console.warn(responseJson);
 
           if (responseJson.message === "Image Updated Successfully") {
@@ -172,7 +179,7 @@ class NewFoodScientistRegistrations extends PureComponent {
           body: JSON.stringify({
             applicationstatus: this.state.approval,
             formid: newValues[0].trim(),
-            registrationdate: date.getDate(),
+            registrationdate: this.state.startDate,
             registrationnumber: this.state.regNumber,
             officialremarks: this.state.remarks
           }),
@@ -217,6 +224,71 @@ class NewFoodScientistRegistrations extends PureComponent {
 
       showLicenses = async () => {
       this.setState({ loading: true });
+      if (!$.fn.DataTable.isDataTable("#table")) {
+          $(document).ready(function () {
+            setTimeout(function () {
+              $("#table").DataTable({
+                pagingType: "full_numbers",
+                pageLength: 20,
+                processing: true,
+                dom: "Bfrtip",
+                select: {
+                  style: "single",
+                },
+
+                buttons: [
+                  {
+                    extend: "pageLength",
+                    className: "btn btn-secondary bg-secondary",
+                  },
+                  {
+                    extend: "copy",
+                    className: "btn btn-secondary bg-secondary",
+                  },
+                  {
+                    extend: "csv",
+                    className: "btn btn-secondary bg-secondary",
+                  },
+                  {
+                    extend: "print",
+                    customize: function (win) {
+                      $(win.document.body).css("font-size", "10pt");
+                      $(win.document.body)
+                        .find("table")
+                        .addClass("compact")
+                        .css("font-size", "inherit");
+                    },
+                    className: "btn btn-secondary bg-secondary",
+                  },
+                ],
+
+                fnRowCallback: function (
+                  nRow,
+                  aData,
+                  iDisplayIndex,
+                  iDisplayIndexFull
+                ) {
+                  var index = iDisplayIndexFull + 1;
+                  $("td:first", nRow).html(index);
+                  return nRow;
+                },
+
+                lengthMenu: [
+                  [10, 20, 30, 50, -1],
+                  [10, 20, 30, 50, "All"],
+                ],
+                columnDefs: [
+                  {
+                    targets: 0,
+                    render: function (data, type, row, meta) {
+                      return type === "export" ? meta.row + 1 : data;
+                    },
+                  },
+                ],
+              });
+            }, 1000);
+          });
+        }
       let obj = {
         method: "GET",
         headers: {
@@ -248,9 +320,11 @@ class NewFoodScientistRegistrations extends PureComponent {
         .catch((error) => {
           Swal.fire({
             title: "Error!",
-            text: error.message,
+            text: "An error occurred. Please try again later.",
             icon: "error",
             confirmButtonText: "OK",
+          }).then(() => {
+            this.props.history.push("/dashboard");
           });
         });
     };
@@ -268,6 +342,7 @@ class NewFoodScientistRegistrations extends PureComponent {
       })
         .then(res => res.json())
         .then(res => {
+          console.warn(res);
           this.setState({
             isPreviewLoading: false,
             userData: res,
@@ -364,7 +439,7 @@ class NewFoodScientistRegistrations extends PureComponent {
       })
         .then(res => res.json())
         .then(res => {
-          console.warn(res);
+          // console.warn(res);
           if(res.message === "Record removed successfully"){
               this.setState({isCanceling: false});
             Swal.fire({
@@ -428,7 +503,7 @@ class NewFoodScientistRegistrations extends PureComponent {
       const indexOfFirstPost = parseInt(indexOfLastPost) - parseInt(postsPerPage);
       const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
       try {
-        return currentPosts.map((item, index) => {
+        return typeof(data) !== undefined && currentPosts.map((item, index) => {
           return (
               <tr>
              <td className="text-xs font-weight-bold">{postsPerPage * (currentPage-1)+index+1}</td>
@@ -441,6 +516,7 @@ class NewFoodScientistRegistrations extends PureComponent {
              <td>
              <button className="btn btn-primary-2 mb-0" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false"><span class="iconify" data-icon="charm:menu-meatball" style={{fontSize: 'large'}} ></span></button>
               <ul className="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4" aria-labelledby="#dropdownMenuButton2">
+                {parseInt(localStorage.getItem("canView")) === 1 &&
                 <li className="mb-2">
                   <a className="dropdown-item border-radius-md" href="javascript:;">
                     <div className="d-flex py-1">
@@ -450,6 +526,7 @@ class NewFoodScientistRegistrations extends PureComponent {
                     </div>
                   </a>
                 </li>
+              }
                 {/*<li className="mb-2">
                   <a className="dropdown-item border-radius-md" href="javascript:;">
                     <div className="d-flex py-1">
@@ -459,7 +536,7 @@ class NewFoodScientistRegistrations extends PureComponent {
                     </div>
                   </a>
                 </li> */}
-                {parseInt(localStorage.getItem("canApprove")) !== 0 &&
+                {parseInt(localStorage.getItem("registration")) === 1 &&
                     <li className="mb-2" onClick={() => this.getFileUpload(item.formid)} className="font-weight-bold" data-bs-toggle="modal" data-bs-target="#exampleModal2">
                       <a className="dropdown-item border-radius-md" href="javascript:;">
                         <div className="d-flex py-1">
@@ -471,7 +548,7 @@ class NewFoodScientistRegistrations extends PureComponent {
                     </li>
                   }
 
-                    {parseInt(localStorage.getItem("canApprove")) !== 0 &&
+                    {parseInt(localStorage.getItem("registration")) === 1 &&
                       <li className="mb-2" data-bs-toggle="modal" data-bs-target="#approve">
                         <a className="dropdown-item border-radius-md" href="javascript:;">
                           <div className="d-flex py-1">
@@ -483,7 +560,8 @@ class NewFoodScientistRegistrations extends PureComponent {
                       </li>
                     }
 
-                    {parseInt(localStorage.getItem("canApprove")) !== 0 &&
+
+                    {/*{parseInt(localStorage.getItem("registration")) === 1 &&
                       <li className="mb-2" data-bs-toggle="modal" data-bs-target="#cancel">
                         <a className="dropdown-item border-radius-md" href="javascript:;">
                           <div className="d-flex py-1">
@@ -493,7 +571,7 @@ class NewFoodScientistRegistrations extends PureComponent {
                           </div>
                         </a>
                       </li>
-                    }
+                    } */}
 
                     </ul>
                     </td>
@@ -529,6 +607,7 @@ class NewFoodScientistRegistrations extends PureComponent {
       }
     };
 
+
     componentDidMount(){
         this.showLicenses();
     }
@@ -537,8 +616,12 @@ class NewFoodScientistRegistrations extends PureComponent {
     const { isLoading, isUploading, isPreviewLoading, isCertificateLoading, noData, isApproving, disabled, loading } = this.state;
       return(
       <div className="container">
+      <div className="row">
+      <div className="col-md-2">
         <Sidebar />
-     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" style={{width: '80%', float: 'right'}}>
+        </div>
+      <div className="col-md-10">
+     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" id="dashboard">
        <div class="container-fluid px-4">
        <div class="rown">
          <div class="col-12">
@@ -554,7 +637,7 @@ class NewFoodScientistRegistrations extends PureComponent {
        {this.state.loading ?  <center><Spinner animation="border" className="text-center" variant="success" size="lg" /></center> :
        <div class="container-fluid py-4">
        <div class="table-responsive p-0 pb-2">
-     <table className="table align-items-center justify-content-center mb-0">
+     <table id="table" className="table align-items-center justify-content-center mb-0">
          <thead>
              <tr>
              <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">S/N</th>
@@ -1334,7 +1417,7 @@ class NewFoodScientistRegistrations extends PureComponent {
 
                                         <hr />
 
-                                        <label
+                                      {/*  <label
                                           className="h4"
                                           htmlFor="floatingInputCustom"
                                           style={{ color: "#145973" }}
@@ -1363,60 +1446,74 @@ class NewFoodScientistRegistrations extends PureComponent {
                                               value={item.sponsorname1}
                                             />
                                           </div>
-                                        </div>
+                                        </div> */}
 
-                                        <div className="col-sm-6 col-lg-4 col-md-6 mb-3">
-                                          <label
-                                            style={{ color: this.state.colorSponsorNo }}
-                                            className="form-label"
-                                          >
-                                            Current CFSN Number <span className="text-danger">*</span>
-                                          </label>
-                                          <div className="input-group input-group-outline mb-3">
-                                            <label className="form-label"></label>
-                                            <input
-                                              className="form-control shadow-none"
-                                              type="text"
-                                              value={item.sponsorcfsnno1}
-                                            />
-                                          </div>
-                                        </div>
-
-                                        <label className="h5" htmlFor="floatingInputCustom">
-                                          Sponsor 2
+                                        <label
+                                          className="h4"
+                                          htmlFor="floatingInputCustom"
+                                          style={{ color: "#145973" }}
+                                        >
+                                          Official Remarks
                                         </label>
+                                        <br />
+                                        <br />
 
                                         <div className="col-sm-6 col-lg-4 col-md-6 mb-3">
-                                          <label className="form-label">Sponsor Name</label>
-                                          <div className="input-group input-group-outline mb-3">
                                             <label className="form-label"></label>
                                             <input
                                               className="form-control shadow-none"
                                               type="text"
-                                              value={item.sponsorname2}
+                                              value={item.officialremarks}
                                             />
                                           </div>
-                                        </div>
 
                                         <div className="col-sm-6 col-lg-4 col-md-6 mb-3">
-                                          <label className="form-label">Current CFSN Number</label>
-                                          <div className="input-group input-group-outline mb-3">
                                             <label className="form-label"></label>
                                             <input
-                                              className="form-control shadow-none"
+                                              className={item.applicationstatus === "pending" ? "bg-warning text-dark form-control shadow-none" : item.applicationstatus === "approved" ? "bg-success text-light form-control shadow-none" : item.applicationstatus === "rejected" ? "bg-danger text-light form-control shadow-none" : "form-control"}
                                               type="text"
-                                              value={item.sponsorcfsnno2}
+                                              value={item.applicationstatus}
                                             />
                                           </div>
+
+
+                                       <hr />
+
+
+                                  <div style={{ height: 45}} />
+
+                                  <label className="h5" htmlFor="floatingInputCustom">
+                                    Passport
+                                  </label>
+
+                                    <div style={{ flexDirection: 'row', alignItems: 'center', margin: 9, justifyContent: 'space-between', flexWrap: 'wrap'}}>
+
+                                    {item.image ?
+                                     <img crossorigin="anonymous" width='306' height='306'  src={`${item.image}`} /> :
+                                     <img src="../assets/images/image.jpeg" alt="No image uploaded for qualification 1"/> }
+
+                                     </div>
+
+                                     <div style={{ height: 45}} />
+
+                                     <label className="h5" htmlFor="floatingInputCustom">
+                                     NIFST  Certificate
+                                     </label>
+
+                                       <div style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap'}}>
+
+                                       {item.nifstcertificateimage ?
+                                        <img crossorigin="anonymous" width='306' height='306'  src={`${item.nifstcertificateimage}`} /> :
+                                        <img src="../assets/images/image.jpeg" alt="No image uploaded for qualification 1"/> }
                                         </div>
-                                        <hr />
 
 
-                                        <div style={{ height: 45}} />
 
-                                        <label className="h5" htmlFor="floatingInputCustom">
-                                          Certificates
-                                        </label>
+                                  <div style={{ height: 45}} />
+
+                                  <label className="h5" htmlFor="floatingInputCustom">
+                                  Qualification  Certificates
+                                  </label>
 
                                     <div style={{ flexDirection: 'row', alignItems: 'center', margin: 9, justifyContent: 'space-between', flexWrap: 'wrap'}}>
 
@@ -1672,7 +1769,7 @@ class NewFoodScientistRegistrations extends PureComponent {
                             </label>
 
                              <div className="col-sm-12 col-lg-12 col-md-12 mb-3">
-                             <label htmlFor="role">Status</label>
+                             <label className="text-dark" htmlFor="role">Status</label>
                                <select
                                  className="form-control shadow-none"
                                  aria-label="Floating label select example"
@@ -1688,9 +1785,9 @@ class NewFoodScientistRegistrations extends PureComponent {
 
                              <div className="col-sm-12 col-lg-12 col-md-12 mb-3">
                                 <label
-                                  className="form-label"
+                                  className="form-label text-dark"
                                 >
-                                  Remarks
+                                  Remarks / Reason for rejection
                                 </label>
                                 <div className="input-group input-group-outline mb-3">
                                   <textarea className="form-control shadow-none"  onChange={(e) => this.setState({ remarks: e.target.value })}>
@@ -1713,26 +1810,26 @@ class NewFoodScientistRegistrations extends PureComponent {
 
                              <div className="col-sm-12 col-lg-12 col-md-12 mb-3">
                                 <label
-                                  className="form-label"
+                                  className="form-label text-dark"
                                 >
                                   Date of approval
                                 </label>
                                 <div className="input-group input-group-outline mb-3">
                                   <label className="form-label"></label>
-                                  <input
-                                    className="form-control shadow-none"
-                                     disabled
-                                    type="phone"
-                                    value = { moment(d.getTime()).format('LL') }
-                                    onValue={this.handleLicenceDate}
-
-                                  />
+                                  <DatePicker
+                                  selected={ item.DOB ? item.DOB : this.state.dob }
+                                  calendarAriaLabel="Select date of birth"
+                                  className="input-group form-control shadow-none mr-1 mb-3"
+                                  value={this.state.startDate}
+                                  onChange={ this.handleDateChange }
+                                  name="startDate"
+                                  dateFormat="MM/dd/yyyy" />
                                 </div>
                               </div>
 
                              <div className="col-sm-12 col-lg-12 col-md-12 mb-3">
                                 <label
-                                  className="form-label"
+                                  className="form-label text-dark"
                                 >
                                   NiCFoST Registration Number
                                 </label>
@@ -1742,7 +1839,7 @@ class NewFoodScientistRegistrations extends PureComponent {
                                     className="form-control shadow-none"
                                     type="text"
                                     onChange={(e) => this.setState({ regNumber: e.target.value })}
-                                    value = {item.applicationstatus === "approved" ? item.nifstregistrationnumber : null }
+                                    value = {item.applicationstatus === "approved" ? item.registrationnumber : null }
                                   />
                                 </div>
                               </div>
@@ -1757,7 +1854,7 @@ class NewFoodScientistRegistrations extends PureComponent {
                                 >
                                 {item.applicationstatus !== "approved" &&
                                   <button
-                                    id={`${item.formid}, ${item.nifstregistrationnumber}`}
+                                    id={`${item.formid}, ${item.registrationnumber}`}
                                     disabled={this.state.disabled}
                                     style={{
                                       alignSelf: "center",
@@ -1799,6 +1896,8 @@ class NewFoodScientistRegistrations extends PureComponent {
 
 
         </main>
+        </div>
+        </div>
         </div>
 
 

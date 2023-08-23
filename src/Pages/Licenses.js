@@ -110,7 +110,7 @@ class Licenses extends Component {
         await fetch(`${baseUrl}License/getAllLicense`, obj)
           .then((response) => response.json())
           .then((responseJson) => {
-            console.warn(responseJson);
+            // console.warn(responseJson);
             if (responseJson.status === 401) {
                 this.setState({ loading: false });
                 Swal.fire({
@@ -195,7 +195,7 @@ class Licenses extends Component {
         const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
 
         try {
-          return currentPosts.map((item, index) => {
+          return typeof(data) !== undefined && currentPosts.map((item, index) => {
             return (
                 <tr>
                 <td className="text-xs font-weight-bold">{index +1}</td>
@@ -208,6 +208,7 @@ class Licenses extends Component {
                <td>
                       <button className="btn btn-primary-2 mb-0" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false"><span class="iconify" data-icon="charm:menu-meatball" style={{fontSize: 'large'}} ></span></button>
                       <ul className="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4" aria-labelledby="#dropdownMenuButton2">
+                      {parseInt(localStorage.getItem("canView")) === 1 &&
                         <li className="mb-2">
                           <a className="dropdown-item border-radius-md" href="javascript:;">
                             <div className="d-flex py-1">
@@ -217,7 +218,8 @@ class Licenses extends Component {
                             </div>
                           </a>
                         </li>
-
+                      }
+                      {parseInt(localStorage.getItem("license")) === 1 &&
                         <li class="mb-2" data-bs-toggle="modal" data-bs-target="#exampleModal2">
                           <a class="dropdown-item border-radius-md" href="javascript:;">
                             <div class="d-flex py-1">
@@ -227,6 +229,7 @@ class Licenses extends Component {
                             </div>
                           </a>
                         </li>
+                      }
 
                       </ul>
                       </td>
@@ -465,7 +468,7 @@ class Licenses extends Component {
   </div>
   {/* </body> */}
 
-   
+
            {/* View Modal */}
              <div className="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                <div className="modal-dialog modal-xl">

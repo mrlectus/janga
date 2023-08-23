@@ -190,7 +190,7 @@ class NewLicences extends PureComponent{
           await fetch(`${baseUrl}License/getAllNewLicenses`, obj)
             .then((response) => response.json())
             .then((responseJson) => {
-              console.warn(responseJson);
+              // console.warn(responseJson);
               if (responseJson.status === 401) {
                   this.setState({ loading: false });
                   Swal.fire({
@@ -468,12 +468,11 @@ class NewLicences extends PureComponent{
           })
             .then(res => res.json())
             .then(res => {
+              console.warn(res);
               this.setState({
                 isLicenceLoading: false,
                 licenceData: res,
               });
-
-
             })
             .catch(error => {
               this.setState({error: true, isLicenceLoading: false});
@@ -502,6 +501,7 @@ class NewLicences extends PureComponent{
                  <td>
                         <button className="btn btn-primary-2 mb-0" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false"><span class="iconify" data-icon="charm:menu-meatball" style={{fontSize: 'large'}} ></span></button>
                         <ul className="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4" aria-labelledby="#dropdownMenuButton2">
+                        {parseInt(localStorage.getItem("canView")) === 1 &&
                         <li className="mb-2">
                           <a className="dropdown-item border-radius-md" href="javascript:;">
                             <div className="d-flex py-1">
@@ -511,7 +511,8 @@ class NewLicences extends PureComponent{
                             </div>
                           </a>
                         </li>
-
+                      }
+                        {parseInt(localStorage.getItem("canView")) === 1 &&
                         <li className="mb-2">
                           <a className="dropdown-item border-radius-md" href="javascript:;">
                             <div className="d-flex py-1">
@@ -521,8 +522,9 @@ class NewLicences extends PureComponent{
                             </div>
                           </a>
                         </li>
+                      }
 
-                        {localStorage.getItem("email") !== null &&
+                        {parseInt(localStorage.getItem("license")) === 1 &&
                         <li className="mb-2" onClick={() => this.getFileUpload(item.recid)} className="font-weight-bold" data-bs-toggle="modal" data-bs-target="#upLoadCertificate">
                           <a className="dropdown-item border-radius-md" href="javascript:;">
                             <div className="d-flex py-1">
@@ -534,7 +536,7 @@ class NewLicences extends PureComponent{
                         </li>
                       }
 
-                        {localStorage.getItem("email") !== null &&
+                        {parseInt(localStorage.getItem("license")) === 1 &&
                         <li className="mb-2">
                           <a className="dropdown-item border-radius-md" href="javascript:;">
                             <div className="d-flex py-1">
@@ -546,7 +548,7 @@ class NewLicences extends PureComponent{
                         </li>
                       }
 
-                      {localStorage.getItem("email") !== null &&
+                      {parseInt(localStorage.getItem("license")) === 1 &&
                       <li className="mb-2" data-bs-toggle="modal" data-bs-target="#cancel">
                         <a className="dropdown-item border-radius-md" href="javascript:;">
                           <div className="d-flex py-1">
@@ -556,7 +558,7 @@ class NewLicences extends PureComponent{
                           </div>
                         </a>
                       </li>
-                    }
+                      }
 
                         </ul>
                         </td>
@@ -626,9 +628,13 @@ class NewLicences extends PureComponent{
       render(){
         const { isLoading, isLicenceLoading, isCertificateLoading, isUploading, isApprovalLoading, isApproving } = this.state;
           return(
-          <div className="g-sidenav-show">
+          <div className="container">
+          <div className="row">
+          <div className="col-md-2">
            <Sidebar />
-         <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" style={{width: '80%', float: 'right'}}>
+           </div>
+         <div className="col-md-10">
+         <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" id="dashboard">
            <div class="container-fluid px-4">
            <div class="rown">
              <div class="col-12">
@@ -1387,7 +1393,7 @@ class NewLicences extends PureComponent{
                                       style={{ color: "green" }}
                                       htmlFor="floatingInputCustom"
                                     >
-                                      Qualification
+                                      Additonal Qualification
                                     </label>
 
                                    <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
@@ -1491,6 +1497,40 @@ class NewLicences extends PureComponent{
                                         />
                                       </div>
                                     </div>
+
+
+                                    <label className="h5" htmlFor="floatingInputCustom">
+                                    Qualification  Certificates
+                                    </label>
+
+                                      <div style={{ flexDirection: 'row', alignItems: 'center', margin: 9, justifyContent: 'space-between', flexWrap: 'wrap'}}>
+
+                                      <div>
+                                      {item.qualificationimage1 ?
+                                       <img crossorigin="anonymous" width='306' height='306'  src={`${item.qualificationimage1}`} /> :
+                                       <img src="../assets/images/image.jpeg" alt="No image uploaded for qualification 1"/>
+                                      }
+                                      </div>
+
+
+                                       {item.qualificationimage2 ?
+                                       <img crossorigin="anonymous" width='306' height='306'  src={`${item.qualificationimage2}`} />:
+                                       <img src="../assets/images/image.jpeg" alt="No image uploaded for qualification 2"/> }
+
+
+                                       {item.qualificationimage3 ?
+                                       <img crossorigin="anonymous" width='306' height='306'  src={`${item.qualificationimage3}`} /> :
+                                       <img src="../assets/images/image.jpeg" alt="No image uploaded for qualification 3"/> }
+
+                                       {item.qualificationimage4 ?
+                                       <img crossorigin="anonymous" width='306' height='306'  src={`${item.qualificationimage4}`} /> :
+                                       <img src="../assets/images/image.jpeg" alt="No image uploaded for qualification 4"/> }
+
+                                       {item.qualificationimage5 ?
+                                       <img crossorigin="anonymous" width='306' height='306'  src={`${item.qualificationimage5}`} /> :
+                                       <img src="../assets/images/image.jpeg" alt="No image uploaded for qualification 5"/> }
+                                       </div>
+
                                     <hr />
 
                                     <label
@@ -1671,6 +1711,8 @@ class NewLicences extends PureComponent{
                  </div>
 
            </main>
+           </div>
+           </div>
             </div>
           )
       }

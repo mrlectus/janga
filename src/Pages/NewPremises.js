@@ -358,7 +358,7 @@ class RenewPremises extends PureComponent {
       const indexOfFirstPost = indexOfLastPost - postsPerPage;
       const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
       try {
-        return currentPosts.map((item, index) => {
+        return typeof(data) !== undefined && currentPosts.map((item, index) => {
           return (
               <tr>
                <td className="text-xs text-capitalize font-weight-bold">{postsPerPage * (currentPage-1)+index+1}</td>
@@ -370,6 +370,7 @@ class RenewPremises extends PureComponent {
                <td>
                     <button className="btn btn-primary-2 mb-0" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false"><span class="iconify" data-icon="charm:menu-meatball" style={{fontSize: 'large'}} ></span></button>
                     <ul className="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4" aria-labelledby="#dropdownMenuButton2">
+                      {parseInt(localStorage.getItem("canView")) === 1 &&
                       <li className="mb-2">
                         <a className="dropdown-item border-radius-md" href="javascript:;">
                           <div className="d-flex py-1">
@@ -379,7 +380,8 @@ class RenewPremises extends PureComponent {
                           </div>
                         </a>
                       </li>
-                      {localStorage.getItem("email") !== null &&
+                      }
+                      {parseInt(localStorage.getItem("premises")) === 1 &&
                       <li class="mb-2" data-bs-toggle="modal" data-bs-target="#cancel">
                         <a class="dropdown-item border-radius-md" href="javascript:;">
                           <div class="d-flex py-1">
@@ -390,7 +392,7 @@ class RenewPremises extends PureComponent {
                         </a>
                       </li>
                     }
-                      {localStorage.getItem("email") !== null &&
+                      {parseInt(localStorage.getItem("premises")) === 1 &&
                       <li class="mb-2" data-bs-toggle="modal" data-bs-target="#exampleModal3">
                         <a class="dropdown-item border-radius-md" href="javascript:;">
                           <div class="d-flex py-1">
@@ -441,9 +443,13 @@ class RenewPremises extends PureComponent {
   render(){
     const { isLoading, isApproving, isPremisesLoading } = this.state;
       return(
-      <div className="g-sidenav-show">
-        <Sidebar />
-     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg " style={{width: '80%', float: 'right'}}>
+      <div className="container">
+      <div className="row">
+      <div className="col-md-2">
+      <Sidebar />
+      </div>
+      <div className="col-md-10">
+     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg " id="dashboard">
        <div class="container-fluid px-4">
        <div class="rown">
          <div class="col-12">
@@ -1081,6 +1087,8 @@ class RenewPremises extends PureComponent {
            </div>
            </div>
        </main>
+       </div>
+       </div>
         </div>
       )
     }

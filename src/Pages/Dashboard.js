@@ -234,9 +234,13 @@ class Dashboard extends Component{
     render(){
       const { isCountingPublicUsers, isCountingAdminUsers, isCountingFoodScientists, isCountingLicence, isCountingPayments, numberOfPayments, numberOfRegisteredLicence, numberOfFoodScientists, numberOfAdminUsers, numberOfPublicUsers } = this.state
         return(
-          <div>
+          <div className="container">
+          <div className="row">
+          <div className="col-md-2">
             <Sidebar />
-            <div class="container-fluid py-4" style={{ width: '70%', position: 'relative', left: 81, height: '100%' }}>
+          </div>
+            <div className="col-md-10" id="dashboard">
+            <div class="container-fluid py-4">
               <div class="row">
                 <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
                   <div class="card bg-success">
@@ -320,6 +324,8 @@ class Dashboard extends Component{
                 </div>
               </div>
               </div>
+             </div>
+             </div>
              </div>
         )
     }

@@ -36,6 +36,11 @@ class AdminUsers extends PureComponent {
           canCreate: true,
           canView: true,
           canApprove: true,
+          canApproveLicense: true,
+          canApproveRegistration: true,
+          canApprovePremises: true,
+          canApprovePayments: true,
+          canApproveInspection: true,
           //VARIABLE COLOR
           userRoleColor: 'black',
           userTypeColor: 'black',
@@ -50,6 +55,11 @@ class AdminUsers extends PureComponent {
       this.handleCanCreateChange = this.handleCanCreateChange.bind(this);
       this.handleCanViewChange = this.handleCanViewChange.bind(this);
       this.handleCanApproveChange = this.handleCanApproveChange.bind(this);
+      this.handleCanApproveLicense = this.handleCanApproveLicense.bind(this);
+      this.handleCanApproveRegistration = this.handleCanApproveRegistration.bind(this);
+      this.handleCanApprovePremises = this.handleCanApprovePremises.bind(this);
+      this.handleCanApprovePayments = this.handleCanApprovePayments.bind(this);
+      this.handleCanApproveInspection = this.handleCanApproveInspection.bind(this);
   }
 
   handleUserRoleChange(e){
@@ -68,6 +78,21 @@ class AdminUsers extends PureComponent {
   }
   handleCanApproveChange(e) {
     e.target.checked === true ? this.setState({canApprove: 1}) : this.setState({canApprove: 0})
+  }
+  handleCanApproveLicense(e) {
+    e.target.checked === true ? this.setState({canApproveLicense: 1}) : this.setState({canApproveLicense: 0})
+  }
+  handleCanApproveRegistration(e) {
+    e.target.checked === true ? this.setState({canApproveRegistration: 1}) : this.setState({canApproveRegistration: 0})
+  }
+  handleCanApprovePremises(e) {
+    e.target.checked === true ? this.setState({canApprovePremises: 1}) : this.setState({canApprovePremises: 0})
+  }
+  handleCanApprovePayments(e) {
+    e.target.checked === true ? this.setState({canApprovePayments: 1}) : this.setState({canApprovePayments: 0})
+  }
+  handleCanApproveInspection(e) {
+    e.target.checked === true ? this.setState({canApproveInspection: 1}) : this.setState({canApproveInspection: 0})
   }
 
 
@@ -95,10 +120,18 @@ class AdminUsers extends PureComponent {
     await fetch(`${baseUrl}Admin/createUsers`, obj)
       .then((response) => response.json())
       .then((responseJson) => {
-        // console.warn(responseJson);
+        console.warn(responseJson);
         if(responseJson.message === "Created User Profile Successfully"){
-          newUserID = responseJson.userid
-          this.assignPrivilege()
+          // newUserID = responseJson.userid
+          this.assignPrivilege(responseJson.userid)
+        }else{
+          this.setState({ isCreating: false, isDisabled: false });
+          Swal.fire({
+            title: "Error!",
+            text: responseJson.message,
+            icon: "error",
+            confirmButtonText: "OK",
+          });
         }
       })
       .catch((error) => {
@@ -112,8 +145,9 @@ class AdminUsers extends PureComponent {
       });
   };
 
- assignPrivilege = async () => {
-    const { canApprove, canCreate, canView } = this.state;
+ assignPrivilege = async (userid) => {
+    const { canApprove, canCreate, canView, canApproveLicense, canApproveRegistration, canApprovePremises, canApprovePayments, canApproveInspection } = this.state;
+    console.warn(userid);
     this.setState({isCreating: true, isDisabled: true})
     var obj = {
       method: "PUT",
@@ -123,34 +157,76 @@ class AdminUsers extends PureComponent {
         Authorization: "Bearer " + localStorage.getItem("token"),
       },
       body: JSON.stringify({
-        canapprove: canApprove,
-        cancreate: canCreate,
-        canview: canView,
-        inspection: 0,
-        license: 0,
-        payments: 0,
-        premises: 0,
-        registration: 0,
-        userid: newUserID.trim()
+        canapprove: parseFloat(canApprove),
+        cancreate: parseFloat(canCreate),
+        canview: parseFloat(canView),
+        inspection: parseFloat(canApproveInspection),
+        license: parseFloat(canApproveLicense),
+        payments: parseFloat(canApprovePayments),
+        premises: parseFloat(canApprovePremises),
+        registration: parseFloat(canApproveRegistration),
+        userid: userid.trim()
       }),
     };
     await fetch(`${baseUrl}Admin/changePrivileges`, obj)
       .then((response) => response.json())
       .then((responseJson) => {
-        // console.warn(responseJson);
+        console.warn(responseJson);
         if(responseJson.message === "Changed Admin Privileges Successfully"){
-          Swal.fire({
-            title: "Success",
-            text: "New user created successfully",
-            icon: "success",
-            confirmButtonText: "OK",
-          }).then(() => {
-              window.location.reload()
-          })
+          this.updateUserStatus(responseJson.userid)
         }
       })
       .catch((error) => {
         this.setState({ isCreating: false, isDisabled: false });
+        Swal.fire({
+          title: "Error!",
+          text: error.message,
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      });
+  };
+
+  updateUserStatus = async (userid) => {
+    this.setState({loading: true, disabled: true});
+    console.warn(userid);
+    var obj = {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        userid: userid.trim(),
+        userstatus: "pending"
+      }),
+    };
+    fetch(`${baseUrl}UsersMgt/UpdateUserStatus`, obj)
+      .then((response) => response.json())
+      .then((responseJson) => {
+       console.warn(responseJson)
+       if(responseJson.status === 401){
+         Swal.fire({
+           title: "Unauthorized",
+           text: responseJson.error,
+           icon: "error",
+           confirmButtonText: "OK",
+         });
+         this.setState({ loading: false })
+       }else if(responseJson.message === "User Status Updated"){
+         Swal.fire({
+           title: "Success",
+           text: "User status updated successfully",
+           icon: "success",
+           confirmButtonText: "OK",
+         }).then(() => {
+             window.location.reload()
+         })
+       }
+      })
+      .catch((error) => {
+        this.setState({ loading: false, disabled: false });
         Swal.fire({
           title: "Error!",
           text: error.message,
@@ -536,61 +612,71 @@ class AdminUsers extends PureComponent {
     }
 
 
-          showTable = () => {
-            const { postsPerPage, currentPage, data } = this.state;
-            const indexOfLastPost = currentPage * postsPerPage;
-            const indexOfFirstPost = indexOfLastPost - postsPerPage;
-            const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
+        showTable = () => {
+          const { postsPerPage, currentPage, data } = this.state;
+          const indexOfLastPost = currentPage * postsPerPage;
+          const indexOfFirstPost = indexOfLastPost - postsPerPage;
+          const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
 
-            try {
-              return currentPosts.map((item, index) => {
-                return (
-                    <tr>
-                    <td className="text-xs font-weight-bold">{postsPerPage * (currentPage-1)+index+1}</td>
-                   <td className="text-xs font-weight-bold">{item.email}</td>
-                   <td className="text-xs font-weight-bold">{item.userrole}</td>
-                   <td className="text-xs font-weight-bold"><button className={item.userstatus === "enabled" ? "btn btn-success text-light text-xs font-weight-bold" : "btn btn-danger text-light text-xs font-weight-bold"}>{item.userstatus}</button></td>
-                   <td className="text-xs font-weight-bold">{(item.usertype)}</td>
-                   {item.email === "superadmin@superadmin.com" && localStorage.getItem("email") !== "superadmin@superadmin.com" ? null :
-                   <td>
-                    <button className="btn btn-primary-2 mb-0" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false"><span class="iconify" data-icon="charm:menu-meatball" style={{fontSize: 'large'}} ></span></button>
-                    <ul className="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4" aria-labelledby="#dropdownMenuButton2">
-                    <li className="mb-2" id = { item.userId } onClick={() => this.getUserDetails(item.userId)} data-bs-toggle="modal" data-bs-target="#viewUser">
-                      <a className="dropdown-item border-radius-md" href="javascript:;">
-                        <div className="d-flex py-1">
-                            <h6 className="text-sm font-weight-normal mb-1">
-                              <span  className="font-weight-bold">View</span>
-                            </h6>
-                        </div>
-                      </a>
-                    </li>
-                          {localStorage.getItem("email") !== null &&
-                            <li class="mb-2" id = { item.userId } onClick={() => this.getEnabledUserDetails(item.userId)} data-bs-toggle="modal" data-bs-target="#enableModal">
-                              <a class="dropdown-item border-radius-md" href="javascript:;">
-                                <div class="d-flex py-1">
-                                    <h6 class="text-sm font-weight-normal mb-1">
-                                      <span className="font-weight-bold" >Enable</span>
-                                    </h6>
-                                </div>
-                              </a>
-                            </li>
-                          }
-                            {localStorage.getItem("email") !== null &&
-                            <li class="mb-2" id = { item.userId } onClick={() => this.getDisabledUserDetails(item.userId)} data-bs-toggle="modal" data-bs-target="#disableModal">
-                              <a class="dropdown-item border-radius-md" href="javascript:;">
-                                <div class="d-flex py-1">
-                                    <h6 class="text-sm font-weight-normal mb-1">
-                                      <span class="font-weight-bold">Disable</span>
-                                    </h6>
-                                </div>
-                              </a>
-                            </li>
-                          }
-                          </ul>
-                          </td> }
-                          <td></td>
-                   </tr>
-                    );
+          try {
+            return currentPosts.map((item, index) => {
+              return (
+           <tr>
+           <td className="text-xs font-weight-bold">{postsPerPage * (currentPage-1)+index+1}</td>
+           <td className="text-xs font-weight-bold">{item.email}</td>
+           <td className="text-xs font-weight-bold">{item.userrole}</td>
+           <td className="text-xs font-weight-bold"><button className={item.userstatus === "enabled" ? "btn btn-success text-light text-xs font-weight-bold" : "btn btn-danger text-light text-xs font-weight-bold"}>{item.userstatus}</button></td>
+           <td className="text-xs font-weight-bold">{(item.usertype)}</td>
+             {localStorage.getItem("email") !== "superadmin@superadmin.com" && item.email === "superadmin@superadmin.com" ? null :
+           <td>
+            <button className="btn btn-primary-2 mb-0" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false"><span class="iconify" data-icon="charm:menu-meatball" style={{fontSize: 'large'}} ></span></button>
+            <ul className="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4" aria-labelledby="#dropdownMenuButton2">
+            {localStorage.getItem("email") !== "superadmin@superadmin.com" && item.email === "superadmin@superadmin.com" ? null :
+            <span>
+            {parseInt(localStorage.getItem("canView")) === 1 &&
+            <li className="mb-2" id = { item.userId } onClick={() => this.getUserDetails(item.userId)} data-bs-toggle="modal" data-bs-target="#viewUser">
+              <a className="dropdown-item border-radius-md" href="javascript:;">
+                <div className="d-flex py-1">
+                    <h6 className="text-sm font-weight-normal mb-1">
+                      <span  className="font-weight-bold">View</span>
+                    </h6>
+                </div>
+              </a>
+            </li>
+          }
+          </span> }
+          {localStorage.getItem("email") !== "superadmin@superadmin.com" && item.email === "superadmin@superadmin.com" ? null :
+          <span>
+          {localStorage.getItem("email") === "superadmin@superadmin.com" || localStorage.getItem("email") === "info@nicfost.gov.ng" ?
+            <li class="mb-2" id = { item.userId } onClick={() => this.getEnabledUserDetails(item.userId)} data-bs-toggle="modal" data-bs-target="#enableModal">
+              <a class="dropdown-item border-radius-md" href="javascript:;">
+                <div class="d-flex py-1">
+                    <h6 class="text-sm font-weight-normal mb-1">
+                      <span className="font-weight-bold" >Enable</span>
+                    </h6>
+                </div>
+              </a>
+            </li> : null }
+            </span> }
+
+        {localStorage.getItem("email") !== "superadmin@superadmin.com" && item.email === "superadmin@superadmin.com" ? null :
+        <span>
+        {localStorage.getItem("email") === "superadmin@superadmin.com" || localStorage.getItem("email") === "info@nicfost.gov.ng" ?
+          <li class="mb-2" id = { item.userId } onClick={() => this.getDisabledUserDetails(item.userId)} data-bs-toggle="modal" data-bs-target="#disableModal">
+            <a class="dropdown-item border-radius-md" href="javascript:;">
+              <div class="d-flex py-1">
+                  <h6 class="text-sm font-weight-normal mb-1">
+                    <span class="font-weight-bold">Disable</span>
+                  </h6>
+              </div>
+            </a>
+          </li> : null }
+          </span> }
+        </ul>
+        </td> }
+        <td></td>
+        </tr>
+          );
               });
             } catch (e) {
               Swal.fire({
@@ -638,16 +724,17 @@ class AdminUsers extends PureComponent {
       <div className="g-sidenav-show">
         <Sidebar />
         <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" style={{width: '80%', float: 'right'}}>
-          <div class="container-fluid px-4">
+          <div class="container- col-sm-12 px-4">
           <div class="rown">
-            <div class="col-12">
+            <div class="col-12 col-sm-12">
               <div class="card my-3">
                 <div class="card-header pb-4 bg-success">
                   <div class="d-flex flex-wrap align-items-center justify-content-between">
                     <h5 className="text-light">All Admin Users</h5>
+                    {localStorage.getItem("email") == "superadmin@superadmin.com" || localStorage.getItem("email") === "info@nicfost.gov.ng" ?
                     <div class="d-flex align-items-center">
                       <button class="btn bg-warning font-weight-bold mb-0 text-dark"  data-bs-toggle="modal" data-bs-target="#createUser" >Create User<span class="iconify" data-icon="carbon:add" style={{fontSize: 'large', fontWeight: 'bold'}}></span></button>
-                    </div>
+                    </div> : null }
                   </div>
                 </div>
 
@@ -868,7 +955,7 @@ class AdminUsers extends PureComponent {
                    <label className="form-label"></label>
                    <input
                      className="form-control w-50 shadow-none"
-                     type="text"
+                     type="password"
                      required="required"
                      onChange={(e) => this.setState({ password: e.target.value })}
                    />
@@ -886,7 +973,7 @@ class AdminUsers extends PureComponent {
                    <label className="form-label"></label>
                    <input
                      className="form-control w-50 shadow-none"
-                     type="text"
+                     type="password"
                      required="required"
                      onChange={(e) => this.setState({ confirmPassword: e.target.value })}
                    />
@@ -992,6 +1079,74 @@ class AdminUsers extends PureComponent {
                    Can View
                  </Form.Floating>
                </div>
+
+               <div style={{ marginTop: 25 }}>
+                 <Form.Floating className="mb-3">
+                   <input
+                     class="form-check-input shadow-none col-sm-6 col-lg-6 col-md-6 mb-3"
+                     type="checkbox"
+                     id="checkBoxUS"
+                     name="US"
+                     onChange={this.handleCanApprovePayments}
+                   />{" "}
+                   Payments
+                 </Form.Floating>
+               </div>
+               </div>
+
+              <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly'}}>
+               <div style={{ marginTop: 0 }}>
+                 <Form.Floating className="mb-3">
+                   <input
+                     class="form-check-input shadow-none col-sm-6 col-lg-6 col-md-6 mb-3"
+                     type="checkbox"
+                     id="checkBoxUS"
+                     name="US"
+                     onChange={this.handleCanApproveLicense}
+                   />{" "}
+                   License
+                 </Form.Floating>
+               </div>
+
+               <div style={{ marginTop: 0 }}>
+                 <Form.Floating className="mb-3">
+                   <input
+                     class="form-check-input shadow-none col-sm-6 col-lg-6 col-md-6 mb-3"
+                     type="checkbox"
+                     id="checkBoxUS"
+                     name="US"
+                     onChange={this.handleCanApproveRegistration}
+                   />{" "}
+                   Registration
+                 </Form.Floating>
+               </div>
+
+               <div style={{ marginTop: 0 }}>
+                 <Form.Floating className="mb-3">
+                   <input
+                     class="form-check-input shadow-none col-sm-6 col-lg-6 col-md-6 mb-3"
+                     type="checkbox"
+                     id="checkBoxUS"
+                     name="US"
+                     onChange={this.handleCanApprovePremises}
+                   />{" "}
+                   Premises
+                 </Form.Floating>
+               </div>
+
+               <div style={{ marginTop: 0 }}>
+                 <Form.Floating className="mb-3">
+                   <input
+                     class="form-check-input shadow-none col-sm-6 col-lg-6 col-md-6 mb-3"
+                     type="checkbox"
+                     id="checkBoxUS"
+                     name="US"
+                     onChange={this.handleCanApproveInspection}
+                   />{" "}
+                   Inspection
+                 </Form.Floating>
+               </div>
+
                </div>
 
                <button

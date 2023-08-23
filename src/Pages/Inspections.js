@@ -375,7 +375,7 @@ class Inspection extends Component {
     const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
 
     try {
-      return currentPosts.map((item, index) => {
+      return typeof(data) !== undefined && currentPosts.map((item, index) => {
         return (
             <tbody>
             <tr>
@@ -390,6 +390,7 @@ class Inspection extends Component {
            <td>
             <button className="btn btn-primary-2 mb-0" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false"><span class="iconify" data-icon="charm:menu-meatball" style={{fontSize: 'large'}} ></span></button>
             <ul className="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4" aria-labelledby="#dropdownMenuButton2">
+              {parseInt(localStorage.getItem("canView")) === 1 &&
               <li className="mb-2" data-bs-toggle="modal" data-bs-target="#exampleModal1">
                 <a className="dropdown-item border-radius-md" href="javascript:;">
                   <div className="d-flex py-1">
@@ -399,6 +400,8 @@ class Inspection extends Component {
                   </div>
                 </a>
               </li>
+              }
+              {parseInt(localStorage.getItem("inspection")) === 1 &&
               <li className="mb-2" data-bs-toggle="modal" data-bs-target="#bookInspection">
                 <a className="dropdown-item border-radius-md" href="javascript:;">
                   <div className="d-flex py-1">
@@ -408,6 +411,8 @@ class Inspection extends Component {
                   </div>
                 </a>
               </li>
+            }
+            {parseInt(localStorage.getItem("inspection")) === 1 &&
               <li className="mb-2" data-bs-toggle="modal" data-bs-target="#submitInspection">
                 <a className="dropdown-item border-radius-md" href="javascript:;">
                   <div className="d-flex py-1">
@@ -417,7 +422,8 @@ class Inspection extends Component {
                   </div>
                 </a>
               </li>
-              {localStorage.getItem("email") !== null &&
+            }
+            {parseInt(localStorage.getItem("inspection")) === 1 &&
               <li className="mb-2" data-bs-toggle="modal" data-bs-target="#cancel">
                 <a className="dropdown-item border-radius-md" href="javascript:;">
                   <div className="d-flex py-1">
@@ -612,12 +618,14 @@ class Inspection extends Component {
   render() {
     const { loading, noRecords, showSearchResults, isDisabled, isSubmitting, isLoading, isInspectionLoading } = this.state;
     return (
-      <div className="g-sidenav-show">
+      <div className="container">
+      <div className="row">
+      <div className="col-md-2">
       <Sidebar />
+      </div>
 
-      <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" style={{width: '80%', float: 'right'}}>
-
-
+      <div className="col-md-10">
+      <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" id="dashboard">
       {!showSearchResults &&
       <div class="container-fluid px-4">
         <div class="rown">
@@ -1195,10 +1203,9 @@ class Inspection extends Component {
           </div>
         </div>
         {/* End of Submit Inspection*/}
-
-
-
       </main>
+      </div>
+      </div>
 
       </div>
     );

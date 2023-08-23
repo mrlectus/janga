@@ -159,7 +159,7 @@ class InspectionReport extends PureComponent {
         return(
         <div className="g-sidenav-show">
           <Sidebar />
-       <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg " style={{width: '80%', float: 'right'}}>
+       <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg " id="dashboard">
          <div class="container-fluid px-4">
          <div class="rown">
            <div class="col-12">

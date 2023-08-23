@@ -5,6 +5,8 @@ import { Spinner } from "react-bootstrap";
 import { baseUrl } from "../Components/BaseUrl";
 import moment from 'moment';
 import Sidebar from '../Components/Sidebar';
+import { DownloadExcel } from "react-excel-export";
+let CryptoJS = require("crypto-js");
 
 class Payments extends Component {
 
@@ -16,11 +18,13 @@ class Payments extends Component {
       postsPerPage: 10,
       currentPage: 1,
       loading: true,
+      disabled: false,
       payer: "",
       noRecords: false,
       isPreviewLoading: false,
       showSearchResults: false,
       isSearching: false,
+      isVerifiedLoading: false
     }
   }
 
@@ -64,7 +68,7 @@ class Payments extends Component {
     })
       .then(res => res.json())
       .then(res => {
-        console.warn(res);
+        // console.warn(res);
         this.setState({
           isSearching: false,
           data: res,
@@ -102,6 +106,97 @@ class Payments extends Component {
       });
   }
 
+  // checkPaymentStatus = async (rrr) => {
+  //   this.setState({isVerifiedLoading: true});
+  //   let merchantId = "9554487021";
+  //   let apiKey = "520436"
+  //   let serviceTypeId = "4430731"
+  //   let d = new Date();
+  //   let orderId = d.getTime();
+  //   let totalAmount = "10000";
+  //   let rrr_value = `${rrr}`;
+  //   let apiHash = CryptoJS.SHA512(rrr + apiKey + merchantId);
+  //
+  //   let req = {
+  //     method: "GET",
+  //     headers: {
+  //       Accept: "application/json",
+  //       "Content-Type": "application/json",
+  //       Authorization: `remitaConsumerKey=${merchantId},remitaConsumerToken=${apiHash}`,
+  //     },
+  //   };
+  //
+  //   await fetch(`https://login.remita.net/remita/exapp/api/v1/send/api/echannelsvc/${merchantId}/${rrr}/${apiHash}/status.reg`, req)
+  //     .then((response) => response.json())
+  //     .then((responseJson) => {
+  //       // console.warn(responseJson);
+  //       this.setState({isVerifiedLoading: false});
+  //       Swal.fire({
+  //       title: '<strong>PAYMENT STATUS</u></strong>',
+  //       icon: 'info',
+  //       html:
+  //         '<b>RRR:</b> ' + responseJson.RRR + '<br/><br/>'+
+  //         '<b>AMOUNT:</b> ' +responseJson.amount+ '<br/><br/>'+
+  //         '<b>STATUS:</b> ' + responseJson.message+ '<br/><br/>'+
+  //         '<b>DATE:</b> ' + responseJson.transactiontime,
+  //       showCloseButton: true,
+  //       showCancelButton: false,
+  //       focusConfirm: false,
+  //       confirmButtonText:
+  //         'OK',
+  //       confirmButtonAriaLabel: 'Thumbs up, great!',
+  //       cancelButtonText:
+  //         '<i class="fa fa-thumbs-down"></i>',
+  //       cancelButtonAriaLabel: 'Thumbs down'
+  // })
+  //     })
+  //     .catch((error) => {
+  //       this.setState({ isVerifiedLoading: false, disabled: false });
+  //       Swal.fire({
+  //         title: "Error!",
+  //         text: error.message,
+  //         icon: "error",
+  //         confirmButtonText: "OK",
+  //       });
+  //     });
+  //   }
+
+
+    checkPaymentStatus = async(rrr) =>{
+      this.setState({isVerifiedLoading: true});
+      const url = `${baseUrl}Remita/checkRRRStatus/${rrr}`;
+       fetch(url, {
+        method: 'GET',
+        headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      })
+        .then(res => res.json())
+        .then(res => {
+          this.setState({isVerifiedLoading: false});
+          Swal.fire({
+          title: '<strong>PAYMENT STATUS</u></strong>',
+          icon: 'info',
+          html:
+            '<b>RRR:</b> ' + res.RRR + '<br/><br/>'+
+            '<b>AMOUNT:</b> ' +res.amount+ '<br/><br/>'+
+            '<b>STATUS:</b> ' + res.message+ '<br/><br/>'+
+            '<b>DATE:</b> ' + res.transactiontime,
+          showCloseButton: true,
+          showCancelButton: false,
+          focusConfirm: false,
+          confirmButtonText:
+            'OK',
+          confirmButtonAriaLabel: 'Thumbs up, great!',
+          cancelButtonText:
+            '<i class="fa fa-thumbs-down"></i>',
+          cancelButtonAriaLabel: 'Thumbs down'
+        })
+        });
+    }
+
   showTable = () => {
     const { postsPerPage, currentPage, data } = this.state;
     const indexOfLastPost = currentPage * postsPerPage;
@@ -109,7 +204,7 @@ class Payments extends Component {
     const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
 
     try {
-      return currentPosts.map((item, index) => {
+      return typeof(data) !== undefined && currentPosts.map((item, index) => {
         return (
             <tbody>
             <tr>
@@ -118,7 +213,7 @@ class Payments extends Component {
            </td>
            <td className="text-xs text-secondary text-capitalize font-weight-bold">{item.payer}</td>
            <td className="text-xs font-weight-bold">{item.description}</td>
-           <td className={item.formtype === "registration" ? "badge bg-success text-xs font-weight-bold" : item.formtype === "renewal" ? "badge bg-primary text-xs font-weight-bold" : "text-xs font-weight-bold"}>{item.formtype.toUpperCase()}</td>
+           <td className="badge bg-info text-xs font-weight-bold">{item.paymentsubcategory?.toUpperCase()}</td>
            <td className="text-xs font-weight-bold">{item.amount}</td>
            <td className={item.message === "Successful" ? 'badge bg-success' : item.message=="Payment Initialized" || item.message === "Transaction Pending" ? "badge bg-warning" : 'btn btn-danger'}>{(item.message)}</td>
            <td className="text-xs font-weight-bold">{moment(item.transactiontime).format('LL') === "Invalid date" ? null : moment(item.transactiontime).format('LL')}</td>
@@ -130,6 +225,15 @@ class Payments extends Component {
                   <div className="d-flex py-1">
                       <h6 className="text-sm font-weight-normal mb-1">
                         <span id = { item.recid } onClick={() => this.getPaymentDetails(item.recid)} className="font-weight-bold">View</span>
+                      </h6>
+                  </div>
+                </a>
+              </li>
+              <li className="mb-2" id = { item.rrr } onClick={() => this.checkPaymentStatus(item.rrr)}>
+                <a className="dropdown-item border-radius-md" href="javascript:;">
+                  <div className="d-flex py-1">
+                      <h6 className="text-sm font-weight-normal mb-1">
+                        <span className="font-weight-bold">Verify Payment</span>
                       </h6>
                   </div>
                 </a>
@@ -164,7 +268,7 @@ class Payments extends Component {
     await fetch(`${baseUrl}Payments/getAllPayments`, obj)
       .then((response) => response.json())
       .then((responseJson) => {
-        console.warn(responseJson);
+        // console.warn(responseJson);
         if (responseJson.status === 401) {
             this.setState({ loading: false });
             Swal.fire({
@@ -199,12 +303,15 @@ class Payments extends Component {
   }
 
   render() {
-    const { loading, noRecords, isSearching, showSearchResults, isPreviewLoading } = this.state;
+    const { loading, noRecords, isSearching, paymentData, isVerifiedLoading, disabled, showSearchResults, isPreviewLoading } = this.state;
     return (
-      <div className="g-sidenav-show">
+      <div className="container">
+      <div className="row">
+      <div className="col-md-2">
       <Sidebar />
-
-      <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" style={{width: '80%', float: 'right'}}>
+      </div>
+      <div className="col-md-10">
+      <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" id="dashboard">
 
 
       {!showSearchResults &&
@@ -242,7 +349,15 @@ class Payments extends Component {
                 </div>
 
         {loading ?  <center><Spinner animation="border" variant="success" size="lg" className="text-center" /></center> :
-      <div class="table-responsive p-0 pb-2">
+      <div className="table-responsive p-0 pb-2">
+      <div className="mb-2" style={{ float: "right" }}>
+      <DownloadExcel
+        data={this.state.data}
+        buttonLabel="Export Data"
+        fileName="payments"
+        className="export-button"
+      />
+      </div>
       <table id="table" className="table align-items-center justify-content-center mb-0">
         <thead>
             <tr>
@@ -251,7 +366,7 @@ class Payments extends Component {
             <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">Payment Description</th>
             <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">Item Paid For</th>
             <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">Amount</th>
-            <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">Message</th>
+            <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">Status</th>
             <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">Transaction Date</th>
             <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">Action</th>
             </tr>
@@ -592,8 +707,79 @@ class Payments extends Component {
           </div>
         </div>
 
+        {/* Start of Verify Modal */}
+        <div class="modal fade" id="verifyPayments" tabindex="-1" aria-labelledby="viewRunning" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header d-flex align-items-center justify-content-between bg-secondary">
+                <h5 class="modal-title text-light font-weight-bold">Verify Payment</h5>
+                <button type="button" class="btn btn-link m-0 p-0 text-light fs-4" data-bs-dismiss="modal" aria-label="Close"><span class="iconify" data-icon="carbon:close"></span></button>
+              </div>
+               { isVerifiedLoading ? <center><Spinner animation="border" className="text-center" variant="success" size="lg" /></center>  :
+              <div class="modal-body">
+              <div class="container-fluid px-4">
+               { paymentData.length > 0 && paymentData.map((item) => {
+                 return(
+                <div class="rown">
+                  <div class="col-12">
+                    <div>
+                      {/*<div class="card-header pb-0">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between">
+                          <h5>Verify Payment</h5>
+                        </div>
+                      </div> */}
+                      <div class="card-body">
+                      <form id="payment-form">
+                         <div class="form-floating mb-4">
+                            <input type="text" class="form-control"
+                             placeholder="Enter RRR" value={item.rrr}/>
+                            <label for="rrr">Enter RRR</label>
+                         </div>
+                         <button
+                           type="button"
+                           disabled={ disabled }
+                           style={{
+                             alignSelf: "center",
+                             width: "100%",
+                             backgroundColor: "#003314",
+                           }}
+                           className="btn btn-success btn-lg"
+                           onClick={() => this.checkPaymentStatus(item.rrr)}
+                         >
+                           {isVerifiedLoading ? (
+                             <Spinner animation="border" variant="light" size="sm" />
+                           ) : (
+                             <span className="font-weight-bold">
+                               {/* APPLY <i class="fas fa-chevron-right"></i> */}
+                               Verify Payment
+                             </span>
+                           )}
+                         </button>
+                       </form>
+                      </div>
+                      </div>
+                      </div>
+                      </div>
+                    )
+                  })
+
+                }
+                      </div>
+              </div>
+            }
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* End of Verify Modal */}
+
 
       </main>
+      </div>
+      </div>
 
       </div>
     );

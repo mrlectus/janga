@@ -234,7 +234,7 @@ class PrintLicenceRecord extends PureComponent {
         const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
 
         try {
-          return currentPosts.map((item, index) => {
+          return typeof(data) !== undefined && currentPosts.map((item, index) => {
             return (
                 <tr>
                 <td className="text-xs font-weight-bold">{index +1}</td>
@@ -291,9 +291,13 @@ class PrintLicenceRecord extends PureComponent {
     render(){
       const { isLoading } = this.state;
         return(
-        <div className="g-sidenav-show">
+        <div className="container">
+        <div className="row">
+        <div className="col-md-2">
          <Sidebar />
-       <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" style={{width: '80%', float: 'right'}}>
+         </div>
+         <div className="col-md-10">
+       <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" id="dashboard">
          <div class="container-fluid px-4">
          <div class="rown">
            <div class="col-12">
@@ -1130,6 +1134,8 @@ class PrintLicenceRecord extends PureComponent {
                </div>
 
          </main>
+         </div>
+         </div>
           </div>
         )
     }
