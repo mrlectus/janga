@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Sidebar from '../Components/Sidebar';
 import { Spinner } from "react-bootstrap";
 import "jquery/dist/jquery.min.js";
+import axios from 'axios';
 import coat from "../assets/images/coat.png";
 import logo from "../assets/images/logo.png";
 import "datatables.net-dt/js/dataTables.dataTables";
@@ -16,6 +17,7 @@ import "datatables.net-buttons/js/buttons.html5.js";
 import "datatables.net-buttons/js/buttons.print.js";
 import $ from "jquery";
 import moment from 'moment';
+import pdf from "../assets/images/pdf.jpg";
 
 
 
@@ -26,6 +28,7 @@ class Premises extends Component {
             data: [],
             loading: false,
             isLoading: false,
+            isDownloading: false,
             premisesData: [],
             postsPerPage: 10,
             currentPage: 1,
@@ -63,6 +66,41 @@ class Premises extends Component {
         });
     }
 
+    getCertificate = async (values) => {
+    this.setState({ isDownloading: true })
+    let val = values.split(",");
+    try {
+      const apiUrl = `${baseUrl}eservices/GetPremisesFile`;
+      const payload = {
+        nameOfCompany: val[3],
+        addressOfPremises: val[0],
+        regNumber: val[2],
+        categoryOfBusiness: val[1],
+        nameOfLeadScientist: val[4],
+        cfsnNo: val[2],
+        validTillDate: '31 December 2023',
+        id: val[2],
+      };
+
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      const response = await axios.post(apiUrl, payload, {
+        responseType: 'blob',
+        headers: headers,     });
+          let url = window.URL.createObjectURL(response.data);
+          let a = document.createElement('a');
+          a.href = url;
+          a.download = 'premises.pdf';
+          a.click();
+          this.setState({ isDownloading: false })
+          document.getElementById('closeButton').click();
+
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
     showPagination = () => {
       const { postsPerPage, data } = this.state;
       const pageNumbers = [];
@@ -89,7 +127,7 @@ class Premises extends Component {
       )
     }
 
-    showLicenses = async () => {
+    showPremises = async () => {
         this.setState({ loading: true });
         let obj = {
           method: "GET",
@@ -102,7 +140,7 @@ class Premises extends Component {
         await fetch(`${baseUrl}Premises/getAllPremises`, obj)
           .then((response) => response.json())
           .then((responseJson) => {
-            // console.warn(responseJson);
+            console.warn(responseJson);
             if (responseJson.status === 401) {
                 this.setState({ loading: false });
                 Swal.fire({
@@ -154,8 +192,20 @@ class Premises extends Component {
                         </div>
                       </a>
                     </li>
+
+                    <li className="mb-2">
+                      <a className="dropdown-item border-radius-md" href="javascript:;">
+                        <div className="d-flex py-1">
+                            <h6 className="text-sm font-weight-normal mb-1">
+                              <span id = { item.userid } onClick={() => this.getCertificate(`${item.locationaddress}, ${item.businesstype}, ${item.registrationnumber}, ${item.organisationname}, ${item.leadfoodscientistname}, ${item.registrationnumber} `)} className="font-weight-bold" data-bs-toggle="modal" data-bs-target="#viewCert">Download Certificate</span>
+                            </h6>
+                        </div>
+                      </a>
+                    </li>
+
                   </ul>
                   </td>
+
                   <td></td>
                </tr>
                 );
@@ -170,7 +220,7 @@ class Premises extends Component {
       };
 
       componentDidMount(){
-          this.showLicenses();
+          this.showPremises();
       }
 
     render(){
@@ -624,6 +674,17 @@ class Premises extends Component {
                                     </div>
                                   </div>
 
+                                  <label
+                                    className="mb-3 h4"
+                                    style={{ color: "green" }}
+                                    htmlFor="floatingInputCustom"
+                                  >
+                                   Certificate Image
+                                  </label>
+
+
+
+
                                   </div>
 
                                </div>
@@ -655,7 +716,38 @@ class Premises extends Component {
              </div>
              </div>
              </div>
-             </div>
+          </div>
+
+
+        {/* Certificate Modal */}
+        <div class="modal fade" id="viewCert" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header bg-success d-flex align-items-center justify-content-between">
+                <h5 class="modal-title font-weight-bold text-light">Downloading Your File</h5>
+                <button type="button" class="btn btn-link m-0 p-0 text-dark fs-4" data-bs-dismiss="modal" aria-label="Close"><span class="iconify" data-icon="carbon:close"></span></button>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+                    <div class="d-flex align-items-center">
+                       <div>
+                        <Spinner animation="border" variant="danger" size="lg" />
+                        <img src={pdf} style={{ width: 250 }} />
+                        </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button id="closeButton" type="button" class="btn btn-danger data" data-bs-dismiss="modal">Abort</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
          </main>
          </div>
          </div>

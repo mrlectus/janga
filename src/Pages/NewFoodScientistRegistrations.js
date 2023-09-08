@@ -5,22 +5,29 @@ import { baseUrl } from "../Components/BaseUrl";
 import { Link, Redirect } from "react-router-dom";
 import Sidebar from '../Components/Sidebar';
 import DatePicker from 'react-date-picker';
-import "jquery/dist/jquery.min.js";
-import "datatables.net-dt/js/dataTables.dataTables";
-import "datatables.net-dt/css/jquery.dataTables.min.css";
-import "datatables.net-buttons/js/dataTables.buttons.js";
-import "datatables.net-buttons/js/buttons.colVis.js";
-import "datatables.net-buttons/js/buttons.flash.js";
-import "datatables.net-buttons/js/buttons.html5.js";
-import "datatables.net-buttons/js/buttons.print.js";
-import $ from "jquery"
+// import "datatables.net-dt/js/dataTables.dataTables";
+// import "datatables.net-dt/css/jquery.dataTables.min.css";
+// import "datatables.net-buttons/js/dataTables.buttons.js";
+// import "datatables.net-buttons/js/buttons.colVis.js";
+// import "datatables.net-buttons/js/buttons.flash.js";
+// import "datatables.net-buttons/js/buttons.html5.js";
+// import "datatables.net-buttons/js/buttons.print.js";
+// import $ from "jquery";
+import DataTable from 'datatables.net-dt';
 import coat from "../assets/images/coat.png";
 import logo from "../assets/images/logo.png";
+import pdf from "../assets/images/pdf.jpg";
 import moment from 'moment';
+import axios from 'axios';
 
 let FILE = "";
 let FILEBASE64 = "";
 let d = new Date();
+
+let table = new DataTable('#myTable', {
+    // config options...
+
+});
 
 // const imageToBase64 = require('image-to-base64');
 
@@ -36,6 +43,7 @@ class NewFoodScientistRegistrations extends PureComponent {
       noData: false,
       loading: false,
       isLoading: false,
+      isDownloading: false,
       isPreviewLoading: false,
       isCertificateLoading: false,
       userData: [],
@@ -101,12 +109,42 @@ class NewFoodScientistRegistrations extends PureComponent {
 
     getFileUpload(formid){
       this.setState({ formid: formid});
-      }
+    }
+
+    downloadCert = async (values) => {
+    console.log(values)
+    this.setState({ isDownloading: true })
+    let val = values.split(",");
+    try {
+      const apiUrl = `${baseUrl}eservices/GetCertificateFile`;
+      const payload = {
+        cfsnNo: val[0],
+        dateOfRegistration: "30 December 2023",
+        id: val[0],
+        nameOfCompany: val[2]
+      };
+
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      const response = await axios.post(apiUrl, payload, {
+        responseType: 'blob',
+        headers: headers,     });
+          console.warn(response.data);
+          let url = window.URL.createObjectURL(response.data);
+          let a = document.createElement('a');
+          a.href = url;
+          a.download = 'certificate.pdf';
+          a.click();
+          this.setState({ isDownloading: false })
+          document.getElementById('closeButton').click();
+
+    } catch (error) {
+      console.error('Error:', error);
+    }  };
 
     upLoadCertificate = async (formid) => {
       this.setState({isUploading: true, disabled: true});
-      // const { base64URL } = this.state;
-
       var obj = {
         method: "PUT",
         headers: {
@@ -164,11 +202,6 @@ class NewFoodScientistRegistrations extends PureComponent {
         let date = new Date();
         let newValues = value.split(",")
 
-        // console.warn(newValues[0]);
-        // console.warn(newValues[1]);
-        // console.warn(this.state.remarks);
-        // console.warn(this.state.approval);
-
         var obj = {
           method: "PUT",
           headers: {
@@ -187,8 +220,6 @@ class NewFoodScientistRegistrations extends PureComponent {
         await fetch(`${baseUrl}Registration/updateRegistrationOfficial`, obj)
           .then((response) => response.json())
           .then((responseJson) => {
-            // console.warn(responseJson);
-
             if (responseJson.message === "Registration Information Updated Successfully") {
               this.setState({ isApproving: false, disabled: false})
               Swal.fire({
@@ -222,73 +253,74 @@ class NewFoodScientistRegistrations extends PureComponent {
       };
 
 
-      showLicenses = async () => {
+      showRegistration = async () => {
       this.setState({ loading: true });
-      if (!$.fn.DataTable.isDataTable("#table")) {
-          $(document).ready(function () {
-            setTimeout(function () {
-              $("#table").DataTable({
-                pagingType: "full_numbers",
-                pageLength: 20,
-                processing: true,
-                dom: "Bfrtip",
-                select: {
-                  style: "single",
-                },
 
-                buttons: [
-                  {
-                    extend: "pageLength",
-                    className: "btn btn-secondary bg-secondary",
-                  },
-                  {
-                    extend: "copy",
-                    className: "btn btn-secondary bg-secondary",
-                  },
-                  {
-                    extend: "csv",
-                    className: "btn btn-secondary bg-secondary",
-                  },
-                  {
-                    extend: "print",
-                    customize: function (win) {
-                      $(win.document.body).css("font-size", "10pt");
-                      $(win.document.body)
-                        .find("table")
-                        .addClass("compact")
-                        .css("font-size", "inherit");
-                    },
-                    className: "btn btn-secondary bg-secondary",
-                  },
-                ],
-
-                fnRowCallback: function (
-                  nRow,
-                  aData,
-                  iDisplayIndex,
-                  iDisplayIndexFull
-                ) {
-                  var index = iDisplayIndexFull + 1;
-                  $("td:first", nRow).html(index);
-                  return nRow;
-                },
-
-                lengthMenu: [
-                  [10, 20, 30, 50, -1],
-                  [10, 20, 30, 50, "All"],
-                ],
-                columnDefs: [
-                  {
-                    targets: 0,
-                    render: function (data, type, row, meta) {
-                      return type === "export" ? meta.row + 1 : data;
-                    },
-                  },
-                ],
-              });
-            }, 1000);
-          });
-        }
+    // if (!$.fn.DataTable.isDataTable("#myTable")) {
+    //     $(document).ready(function () {
+    //       setTimeout(function () {
+    //         $("#table").DataTable({
+    //           pagingType: "full_numbers",
+    //           pageLength: 20,
+    //           processing: true,
+    //           dom: "Bfrtip",
+    //           select: {
+    //             style: "single",
+    //           },
+    //
+    //           buttons: [
+    //             {
+    //               extend: "pageLength",
+    //               className: "btn btn-secondary bg-secondary",
+    //             },
+    //             {
+    //               extend: "copy",
+    //               className: "btn btn-secondary bg-secondary",
+    //             },
+    //             {
+    //               extend: "csv",
+    //               className: "btn btn-secondary bg-secondary",
+    //             },
+    //             {
+    //               extend: "print",
+    //               customize: function (win) {
+    //                 $(win.document.body).css("font-size", "10pt");
+    //                 $(win.document.body)
+    //                   .find("table")
+    //                   .addClass("compact")
+    //                   .css("font-size", "inherit");
+    //               },
+    //               className: "btn btn-secondary bg-secondary",
+    //             },
+    //           ],
+    //
+    //           fnRowCallback: function (
+    //             nRow,
+    //             aData,
+    //             iDisplayIndex,
+    //             iDisplayIndexFull
+    //           ) {
+    //             var index = iDisplayIndexFull + 1;
+    //             $("td:first", nRow).html(index);
+    //             return nRow;
+    //           },
+    //
+    //           lengthMenu: [
+    //             [10, 20, 30, 50, -1],
+    //             [10, 20, 30, 50, "All"],
+    //           ],
+    //           columnDefs: [
+    //             {
+    //               targets: 0,
+    //               render: function (data, type, row, meta) {
+    //                 return type === "export" ? meta.row + 1 : data;
+    //               },
+    //             },
+    //           ],
+    //         });
+    //       }, 1000);
+    //     });
+    //   }
       let obj = {
         method: "GET",
         headers: {
@@ -300,7 +332,7 @@ class NewFoodScientistRegistrations extends PureComponent {
       await fetch(`${baseUrl}Registration/getAllRegistration`, obj)
         .then((response) => response.json())
         .then((responseJson) => {
-          // console.warn(responseJson);
+          console.warn(responseJson);
           if (responseJson.status === 401) {
               this.setState({ loading: false });
               Swal.fire({
@@ -415,6 +447,7 @@ class NewFoodScientistRegistrations extends PureComponent {
       })
         .then(res => res.json())
         .then(res => {
+          console.warn(res);
           this.setState({
             isLoading: false,
             userApproveData: res,
@@ -496,16 +529,15 @@ class NewFoodScientistRegistrations extends PureComponent {
 
 
     showTable = () => {
-      // alert(this.state.data.length)//
-      // console.warn(this.state.data);
       const { postsPerPage, currentPage, data } = this.state;
       const indexOfLastPost = currentPage * postsPerPage;
       const indexOfFirstPost = parseInt(indexOfLastPost) - parseInt(postsPerPage);
       const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
       try {
         return typeof(data) !== undefined && currentPosts.map((item, index) => {
+        // return data.map((item, index) => {
           return (
-              <tr>
+             <tr>
              <td className="text-xs font-weight-bold">{postsPerPage * (currentPage-1)+index+1}</td>
              <td className="text-xs text-capitalize font-weight-bold">{item.title}</td>
              <td className="text-xs font-weight-bold">{item.surname+ ' ' + item.othernames}</td>
@@ -527,15 +559,7 @@ class NewFoodScientistRegistrations extends PureComponent {
                   </a>
                 </li>
               }
-                {/*<li className="mb-2">
-                  <a className="dropdown-item border-radius-md" href="javascript:;">
-                    <div className="d-flex py-1">
-                        <h6 className="text-sm font-weight-normal mb-1">
-                          <span id = { item.formid } onClick={() => this.getUserCertificate(item.formid)} className="font-weight-bold" data-bs-toggle="modal" data-bs-target="#certificate">View Applicant's Certificate</span>
-                        </h6>
-                    </div>
-                  </a>
-                </li> */}
+
                 {parseInt(localStorage.getItem("registration")) === 1 &&
                     <li className="mb-2" onClick={() => this.getFileUpload(item.formid)} className="font-weight-bold" data-bs-toggle="modal" data-bs-target="#exampleModal2">
                       <a className="dropdown-item border-radius-md" href="javascript:;">
@@ -547,6 +571,18 @@ class NewFoodScientistRegistrations extends PureComponent {
                       </a>
                     </li>
                   }
+
+                  {parseInt(localStorage.getItem("registration")) === 1 &&
+                      <li className="mb-2" className="font-weight-bold" onClick={() => this.downloadCert(`${item.nifstregistrationnumber}, ${item.applicationdate}, ${item.organization}`)} data-bs-toggle="modal" data-bs-target="#viewCert">
+                        <a className="dropdown-item border-radius-md" href="javascript:;">
+                          <div className="d-flex py-1">
+                              <h6 className="text-sm font-weight-normal mb-1">
+                                <span className="font-weight-bold" id = { item.formid } onClick={() => this.downloadCert(`${item.nifstregistrationnumber}, ${item.applicationdate}, ${item.organization}`)}>Download Reg. Certificate</span>
+                              </h6>
+                          </div>
+                        </a>
+                      </li>
+                    }
 
                     {parseInt(localStorage.getItem("registration")) === 1 &&
                       <li className="mb-2" data-bs-toggle="modal" data-bs-target="#approve">
@@ -561,7 +597,7 @@ class NewFoodScientistRegistrations extends PureComponent {
                     }
 
 
-                    {/*{parseInt(localStorage.getItem("registration")) === 1 &&
+                    {localStorage.getItem("email") === "superadmin@superadmin.com" &&
                       <li className="mb-2" data-bs-toggle="modal" data-bs-target="#cancel">
                         <a className="dropdown-item border-radius-md" href="javascript:;">
                           <div className="d-flex py-1">
@@ -571,12 +607,20 @@ class NewFoodScientistRegistrations extends PureComponent {
                           </div>
                         </a>
                       </li>
-                    } */}
+                    }
 
+                    {localStorage.getItem("email") === "info@nicfost.gov.ng" &&
+                      <li className="mb-2" data-bs-toggle="modal" data-bs-target="#cancel">
+                        <a className="dropdown-item border-radius-md" href="javascript:;">
+                          <div className="d-flex py-1">
+                              <h6 className="text-sm font-weight-normal mb-1">
+                                <span className="font-weight-bold text-danger">Cancel Application</span>
+                              </h6>
+                          </div>
+                        </a>
+                      </li>
+                    }
                     </ul>
-                    </td>
-                    <td></td>
-
                     {/*Cancel Application */}
                     <div class="modal fade" id="cancel" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
@@ -595,6 +639,7 @@ class NewFoodScientistRegistrations extends PureComponent {
                       </div>
                     </div>
                   </div>
+                </td>
              </tr>
               );
         });
@@ -609,7 +654,7 @@ class NewFoodScientistRegistrations extends PureComponent {
 
 
     componentDidMount(){
-        this.showLicenses();
+        this.showRegistration();
     }
 
   render(){
@@ -619,9 +664,9 @@ class NewFoodScientistRegistrations extends PureComponent {
       <div className="row">
       <div className="col-md-2">
         <Sidebar />
-        </div>
+      </div>
       <div className="col-md-10">
-     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" id="dashboard">
+      <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" id="dashboard">
        <div class="container-fluid px-4">
        <div class="rown">
          <div class="col-12">
@@ -632,12 +677,10 @@ class NewFoodScientistRegistrations extends PureComponent {
                </div>
              </div>
          <div class="card-body">
-
-
        {this.state.loading ?  <center><Spinner animation="border" className="text-center" variant="success" size="lg" /></center> :
        <div class="container-fluid py-4">
        <div class="table-responsive p-0 pb-2">
-     <table id="table" className="table align-items-center justify-content-center mb-0">
+       <table id="myTable" className="table align-items-center justify-content-center mb-0">
          <thead>
              <tr>
              <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">S/N</th>
@@ -648,7 +691,7 @@ class NewFoodScientistRegistrations extends PureComponent {
              <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Date Applied</th>
              <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Date Approved</th>
              <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Action</th>
-             </tr>
+            </tr>
          </thead>
 
          <tbody>
@@ -656,9 +699,9 @@ class NewFoodScientistRegistrations extends PureComponent {
          </tbody>
      </table>
      {this.state.noData && <center><p>No data available in the table</p></center>}
-         </div>
          <div style={{float: 'right'}}>
          {this.showPagination()}
+         </div>
          </div>
          </div> }
          {/* <Footer /> */}
@@ -1668,52 +1711,51 @@ class NewFoodScientistRegistrations extends PureComponent {
                          />
                        </div>
 
+         <div
+         className="text-center"
+           style={{
+             margin: "auto",
+             width: "100%",
+             marginTop: 45,
+             marginBottom: 0,
+           }}
+         >
+           <button
+             disabled={this.state.disabled}
+             style={{
+               alignSelf: "center",
+               width: "100%",
+               backgroundColor: "#147332",
+             }}
+             className="btn btn-success btn-lg col-sm-12 col-lg-12 col-md-12 mb-3"
+             onClick={(e) => this.upLoadCertificate()}
+           >
+             {isUploading ? (
+               <Spinner animation="border" variant="light" size="sm" />
+             ) : (
+               <span className="font-weight-bold">
+                 {/* APPLY <i class="fas fa-chevron-right"></i> */}
+                 SUBMIT APPLICATION
+               </span>
+             )}
+           </button>
+         </div>
+         </div>
+         </div>
+         }
 
-                     <div
-                     className="text-center"
-                       style={{
-                         margin: "auto",
-                         width: "100%",
-                         marginTop: 45,
-                         marginBottom: 0,
-                       }}
-                     >
-                       <button
-                         disabled={this.state.disabled}
-                         style={{
-                           alignSelf: "center",
-                           width: "100%",
-                           backgroundColor: "#147332",
-                         }}
-                         className="btn btn-success btn-lg col-sm-12 col-lg-12 col-md-12 mb-3"
-                         onClick={(e) => this.upLoadCertificate()}
-                       >
-                         {isUploading ? (
-                           <Spinner animation="border" variant="light" size="sm" />
-                         ) : (
-                           <span className="font-weight-bold">
-                             {/* APPLY <i class="fas fa-chevron-right"></i> */}
-                             SUBMIT APPLICATION
-                           </span>
-                         )}
-                       </button>
-                     </div>
-                     </div>
-                     </div>
-                   }
-
-                  { isCertificateLoading ? <center><Spinner animation="border" className="text-center" variant="success" size="lg" /></center>  :
-                  <div className="d-flex flex-column">
-                    {this.state.userCertificate.map((item) => {
-                      return (
-                   <div className="container" style={{ marginTop: 18, padding: 9 }}>
-                     <div style={{ marginTop: 0 }}></div>
-                     <center>
-                     {item.registrationcertificate ?
-                     <img crossorigin="anonymous" width='450' height='450'  src={`${item.registrationcertificate}`} />
-                     : <p>No certificate uploaded for this user.</p> }
-                     </center>
-                     </div>
+            { isCertificateLoading ? <center><Spinner animation="border" className="text-center" variant="success" size="lg" /></center>  :
+            <div className="d-flex flex-column">
+              {this.state.userCertificate.map((item) => {
+                return (
+             <div className="container" style={{ marginTop: 18, padding: 9 }}>
+               <div style={{ marginTop: 0 }}></div>
+               <center>
+               {item.registrationcertificate ?
+               <img crossorigin="anonymous" width='450' height='450'  src={`${item.registrationcertificate}`} />
+               : <p>No certificate uploaded for this user.</p> }
+               </center>
+               </div>
              )})}
              </div>
            }
@@ -1767,6 +1809,9 @@ class NewFoodScientistRegistrations extends PureComponent {
                             >
                               Administrative action
                             </label>
+
+                            <p className="font-weight-bold">{`${item.surname} ${item.othernames}` }</p>
+
 
                              <div className="col-sm-12 col-lg-12 col-md-12 mb-3">
                              <label className="text-dark" htmlFor="role">Status</label>
@@ -1893,6 +1938,35 @@ class NewFoodScientistRegistrations extends PureComponent {
                </div>
              </div>
            </div>
+
+
+       {/* Certificate Modal */}
+       <div class="modal fade" id="viewCert" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+         <div class="modal-dialog">
+           <div class="modal-content">
+             <div class="modal-header bg-success d-flex align-items-center justify-content-between">
+               <h5 class="modal-title font-weight-bold text-light">Downloading Your File</h5>
+               <button type="button" class="btn btn-link m-0 p-0 text-dark fs-4" data-bs-dismiss="modal" aria-label="Close"><span class="iconify" data-icon="carbon:close"></span></button>
+             </div>
+             <div class="modal-body">
+               <div class="row">
+                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+                   <div class="d-flex align-items-center">
+                      <div>
+                       <Spinner animation="border" variant="danger" size="lg" />
+                       <img src={pdf} style={{ width: 250 }} />
+                       </div>
+                   </div>
+                 </div>
+
+               </div>
+             </div>
+             <div class="modal-footer">
+               <button id="closeButton" type="button" class="btn btn-danger data" data-bs-dismiss="modal">Abort</button>
+             </div>
+           </div>
+         </div>
+       </div>
 
 
         </main>

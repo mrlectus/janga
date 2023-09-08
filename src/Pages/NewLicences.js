@@ -653,7 +653,7 @@ class NewLicences extends PureComponent{
              {this.state.loading ?  <Spinner variant="success" animation="border" style={{ position:'relative', left: 450, top: 0 }} className="text-center" variant="success" size="lg" /> :
            <div class="container-fluid py-4">
            <div class="table-responsive p-0 pb-2">
-         <table id="table" className="table align-items-center justify-content-center mb-0">
+           <table id="table" className="table align-items-center justify-content-center mb-0">
              <thead>
              <tr>
              <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">S/N</th>
@@ -664,7 +664,6 @@ class NewLicences extends PureComponent{
              <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Date Applied</th>
              <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Date Approved</th>
              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Action</th>
-             <th></th>
              </tr>
              </thead>
 
