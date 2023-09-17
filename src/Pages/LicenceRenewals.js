@@ -22,6 +22,7 @@ class LicenceRenewals extends PureComponent {
     super(props);
     this.state = {
       data: [],
+      filteredData: [],
       noData: false,
       loading: false,
       isLoading: false,
@@ -83,7 +84,7 @@ class LicenceRenewals extends PureComponent {
         } else if (responseJson.length === 0) {
           this.setState({ noData: true, loading: false })
         } else {
-          this.setState({ data: responseJson, loading: false })
+          this.setState({ data: responseJson, loading: false, filteredData: responseJson })
         }
       })
       .catch((error) => {
@@ -192,9 +193,9 @@ class LicenceRenewals extends PureComponent {
   }
 
   showPagination = () => {
-    const { postsPerPage, data } = this.state;
+    const { postsPerPage, data, filteredData } = this.state;
     const pageNumbers = [];
-    const totalPosts = data.length;
+    const totalPosts = filteredData.length;
     for (let i = 1; i <= Math.ceil(totalPosts / postsPerPage); i++) {
       pageNumbers.push(i)
     }
@@ -220,10 +221,10 @@ class LicenceRenewals extends PureComponent {
 
 
   showTable = () => {
-    const { postsPerPage, currentPage, data } = this.state;
+    const { postsPerPage, currentPage, data, filteredData } = this.state;
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
+    const currentPosts = filteredData.slice(indexOfFirstPost, indexOfLastPost);
     try {
       return typeof (data) !== undefined && currentPosts.map((item, index) => {
         return (
@@ -318,7 +319,21 @@ class LicenceRenewals extends PureComponent {
 
   componentDidMount() {
     this.showLicenses();
+    this.setState({ filteredData: this.state.data });
+
   }
+
+  handleFilterChange = (e) => {
+    const filterValue = e.target.value;
+    this.setState({ filterValue }, () => {
+      const filteredData = this.state?.data?.filter(item =>
+        item?.othernames?.toLowerCase()?.includes(filterValue?.toLowerCase())
+        || item?.surname?.toLowerCase()?.includes(filterValue?.toLowerCase())
+
+      );
+      this.setState({ filteredData });
+    });
+  };
 
   render() {
     const { isLoading, isPreviewLoading, loading } = this.state;
@@ -371,6 +386,9 @@ class LicenceRenewals extends PureComponent {
 
                         {this.state.loading ? <center><Spinner animation="border" className="text-center" variant="success" size="lg" /></center> :
                           <div class="container-fluid py-4">
+                            <div className="d-flex justify-content-end">
+                              <input onChange={this.handleFilterChange} type="text" id="myInput" className="outline-none h-10 m-2" placeholder="Search for names.." title="Type in a name" />
+                            </div>
                             <div class="table-responsive p-0 pb-2">
                               <table className="table align-items-center justify-content-center mb-0">
                                 <thead>

@@ -26,6 +26,7 @@ class Premises extends Component {
     super(props);
     this.state = {
       data: [],
+      filteredData: [],
       loading: false,
       isLoading: false,
       isDownloading: false,
@@ -103,9 +104,9 @@ class Premises extends Component {
   };
 
   showPagination = () => {
-    const { postsPerPage, data } = this.state;
+    const { postsPerPage, data, filteredData } = this.state;
     const pageNumbers = [];
-    const totalPosts = data.length;
+    const totalPosts = filteredData.length;
     for (let i = 1; i <= Math.ceil(totalPosts / postsPerPage); i++) {
       pageNumbers.push(i)
     }
@@ -153,7 +154,7 @@ class Premises extends Component {
             this.props.history.push("/login");
           });
         } else {
-          this.setState({ data: responseJson, loading: false })
+          this.setState({ data: responseJson, loading: false, filteredData: responseJson })
         }
       })
       .catch((error) => {
@@ -168,10 +169,10 @@ class Premises extends Component {
 
 
   showTable = () => {
-    const { postsPerPage, currentPage, data } = this.state;
+    const { postsPerPage, currentPage, data, filteredData } = this.state;
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
+    const currentPosts = filteredData.slice(indexOfFirstPost, indexOfLastPost);
     try {
       return typeof (data) !== undefined && currentPosts.map((item, index) => {
         return (
@@ -222,7 +223,19 @@ class Premises extends Component {
 
   componentDidMount() {
     this.showPremises();
+    this.setState({ filteredData: this.state.data });
   }
+
+  handleFilterChange = (e) => {
+    const filterValue = e.target.value;
+    this.setState({ filterValue }, () => {
+      const filteredData = this.state?.data?.filter(item =>
+        item?.organisationname?.toLowerCase()?.includes(filterValue?.toLowerCase())
+
+      );
+      this.setState({ filteredData });
+    });
+  };
 
   render() {
     const { isLoading } = this.state;
@@ -253,6 +266,9 @@ class Premises extends Component {
 
                         {this.state.loading ? <Spinner animation="border" style={{ position: 'relative', left: 450, top: 0 }} className="text-center" variant="success" size="lg" /> :
                           <div class="container-fluid py-4">
+                            <div className="d-flex justify-content-end">
+                              <input onChange={this.handleFilterChange} type="text" id="myInput" className="outline-none h-10 m-2" placeholder="Search for org.." title="Type in organisation" />
+                            </div>
                             <div class="table-responsive p-0 pb-2">
                               <table id="table" className="table align-items-center justify-content-center mb-0">
                                 <thead>
