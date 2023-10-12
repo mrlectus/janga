@@ -117,7 +117,7 @@ class NewFoodScientistRegistrations extends PureComponent {
   downloadCert = async (values, values2 = []) => {
     this.setState({ isDownloading: true })
     let val = values.split(",");
-    console.log(val);
+    console.log("val", val);
     try {
       const apiUrl = `${baseUrl}eservices/GetCertificateFile`;
       const payload = {
@@ -565,7 +565,7 @@ class NewFoodScientistRegistrations extends PureComponent {
                 }
 
                 {item.applicationstatus === "approved" && parseInt(localStorage.getItem("registration")) === 1 &&
-                  <li className="mb-2 font-weight-bold" onClick={() => this.downloadCert(`${item.nifstregistrationnumber}, ${item.applicationdate}, ${item.organization}`, [item.title, item.othernames, item.surname])} data-bs-toggle="modal" data-bs-target="#viewCert">
+                  <li className="mb-2 font-weight-bold" onClick={() => this.downloadCert(`${item.registrationnumber}, ${item.applicationdate}, ${item.organization}`, [item.title, item.othernames, item.surname])} data-bs-toggle="modal" data-bs-target="#viewCert">
                     <a className="dropdown-item border-radius-md" href="javascript:;">
                       <div className="d-flex py-1">
                         <h6 className="text-sm font-weight-normal mb-1">
@@ -651,11 +651,13 @@ class NewFoodScientistRegistrations extends PureComponent {
   }
 
   handleFilterChange = (e) => {
+    console.log("me-data", this.state.filteredData)
     const filterValue = e.target.value;
     this.setState({ filterValue }, () => {
       const filteredData = this.state?.data?.filter(item =>
         item?.othernames?.toLowerCase()?.includes(filterValue?.toLowerCase())
         || item?.surname?.toLowerCase()?.includes(filterValue?.toLowerCase())
+        || item?.previoussurname?.toLowerCase()?.includes(filterValue?.toLowerCase())
 
       );
       this.setState({ filteredData });
@@ -744,6 +746,7 @@ class NewFoodScientistRegistrations extends PureComponent {
                                     {isPreviewLoading ? <center><Spinner animation="border" className="text-center" variant="success" size="lg" /></center> :
                                       <div className="d-flex flex-column">
                                         {this.state.userData.map((item) => {
+                                          console.log(item)
                                           return (
                                             <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg " style={{ width: !localStorage.getItem("token") ? '90%' : '100%', position: localStorage.getItem("token") ? 'relative' : '', right: 0, padding: 18, float: !localStorage.getItem("token") ? '' : 'right', marginBottom: 90 }}>
                                               <div className="container-fluid px-4">
@@ -938,7 +941,6 @@ class NewFoodScientistRegistrations extends PureComponent {
                                                               <input
                                                                 className="form-control shadow-none"
                                                                 type="text"
-                                                                required="required"
                                                                 value={item.lga}
                                                               />
                                                             </div>
@@ -956,7 +958,7 @@ class NewFoodScientistRegistrations extends PureComponent {
                                                               <input
                                                                 className="form-control shadow-none"
                                                                 type="text"
-                                                                value={item.nifstregistrationnumber}
+                                                                value={item.registrationnumber}
                                                               />
                                                             </div>
                                                           </div>

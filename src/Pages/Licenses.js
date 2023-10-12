@@ -38,9 +38,9 @@ class Licenses extends Component {
     // console.log(values)
     this.setState({ isDownloading: true })
     let val = values.split(",");
+    console.log(val)
     try {
-      const _formerUrl = `${baseUrl}eservices/GetLicenseFile`;
-      const apiUrl = `https://nicfost.iservices.com.ng/api-server/certificate/practice`;
+      const apiUrl = `${baseUrl}eservices/GetLicenseFile`;
       const payload = {
         id: val[1],
         nameOfCompany: val[0],
@@ -274,7 +274,7 @@ class Licenses extends Component {
                     <a class="dropdown-item border-radius-md" href="javascript:;">
                       <div class="d-flex py-1">
                         <h6 class="text-sm font-weight-normal mb-1">
-                          <span id={item.userid} onClick={() => this.downloadCert(`${item.organization}, ${item.registrationnumber}`)} className="font-weight-bold">View Certificate</span>
+                          <span id={item.userid} onClick={() => this.downloadCert(`${item.organization}, ${item.licensenumber}`)} className="font-weight-bold">View Certificate</span>
                         </h6>
                       </div>
                     </a>
@@ -539,6 +539,7 @@ class Licenses extends Component {
                              <span className="font-weight-bold">NiCFOsT</span>
                            </h6> */}
                                     {this.state.licenceData.map((item) => {
+                                      console.log(item)
                                       return (
                                         <div>
                                           <h4 className="text-dark text-uppercase ms-sm-4 ">{item.title + ' ' + item.surname + ' ' + item.othernames}</h4>
