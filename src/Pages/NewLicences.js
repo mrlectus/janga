@@ -3,8 +3,8 @@ import Swal from "sweetalert2";
 import { baseUrl } from "../Components/BaseUrl";
 import { Link } from "react-router-dom";
 import { Spinner } from "react-bootstrap";
-import Sidebar from '../Components/Sidebar';
-import DatePicker from 'react-date-picker';
+import Sidebar from "../Components/Sidebar";
+import DatePicker from "react-date-picker";
 import coat from "../assets/images/coat.png";
 import logo from "../assets/images/logo.png";
 import "jquery/dist/jquery.min.js";
@@ -16,12 +16,11 @@ import "datatables.net-buttons/js/buttons.flash.js";
 import "datatables.net-buttons/js/buttons.html5.js";
 import "datatables.net-buttons/js/buttons.print.js";
 import $ from "jquery";
-import moment from 'moment';
-let date = new Date()
+import moment from "moment";
+let date = new Date();
 let FILEBASE64 = "";
 
 class NewLicences extends PureComponent {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -46,16 +45,16 @@ class NewLicences extends PureComponent {
       currentPage: 1,
       approval: "",
       remarks: "",
-      licenceNumber: ""
-    }
+      licenceNumber: "",
+    };
     this.handleApprovalChange = this.handleApprovalChange.bind(this);
     this.handleDateChange = this.handleDateChange.bind(this);
   }
 
   handleDateChange(date) {
     this.setState({
-      startDate: date
-    })
+      startDate: date,
+    });
   }
 
   handleApprovalChange(e) {
@@ -63,7 +62,7 @@ class NewLicences extends PureComponent {
   }
 
   print() {
-    window.print()
+    window.print();
   }
 
   async handleFileChange(e) {
@@ -73,7 +72,7 @@ class NewLicences extends PureComponent {
 
       fileReader.onload = () => {
         resolve(fileReader.result);
-        FILEBASE64 = fileReader.result
+        FILEBASE64 = fileReader.result;
       };
 
       fileReader.onerror = (error) => {
@@ -90,26 +89,25 @@ class NewLicences extends PureComponent {
     const url = `${baseUrl}License/getlicenseByRecID/${recid}`;
     this.setState({ isCertificateLoading: true });
     fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("token"),
       },
     })
-      .then(res => res.json())
-      .then(res => {
+      .then((res) => res.json())
+      .then((res) => {
         this.setState({
           isCertificateLoading: false,
           userCertificate: res,
         });
       })
-      .catch(error => {
+      .catch((error) => {
         this.setState({ error: true, isCertificateLoading: false });
         alert(error);
       });
-  }
-
+  };
 
   showLicenses = async () => {
     this.setState({ loading: true });
@@ -156,7 +154,7 @@ class NewLicences extends PureComponent {
               nRow,
               aData,
               iDisplayIndex,
-              iDisplayIndexFull
+              iDisplayIndexFull,
             ) {
               var index = iDisplayIndexFull + 1;
               $("td:first", nRow).html(index);
@@ -203,9 +201,13 @@ class NewLicences extends PureComponent {
             this.props.history.push("/login");
           });
         } else if (responseJson.length === 0) {
-          this.setState({ noData: true, loading: false })
+          this.setState({ noData: true, loading: false });
         } else {
-          this.setState({ data: responseJson, loading: false, filteredData: responseJson })
+          this.setState({
+            data: responseJson,
+            loading: false,
+            filteredData: responseJson,
+          });
         }
       })
       .catch((error) => {
@@ -219,18 +221,18 @@ class NewLicences extends PureComponent {
   };
 
   cancelApplication = (recid) => {
-    this.setState({ isCanceling: true })
+    this.setState({ isCanceling: true });
     const url = `${baseUrl}License/removeRecord/${recid}`;
     fetch(url, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        "Accept": "application/json",
+        Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("token"),
       },
     })
-      .then(res => res.json())
-      .then(res => {
+      .then((res) => res.json())
+      .then((res) => {
         console.warn(res);
         if (res.message === "Record removed successfully") {
           this.setState({ isCanceling: false });
@@ -240,15 +242,15 @@ class NewLicences extends PureComponent {
             icon: "success",
             confirmButtonText: "OK",
           }).then(() => {
-            this.props.history.push("/new-licenses")
-          })
+            this.props.history.push("/new-licenses");
+          });
         } else {
           Swal.fire({
             title: "Error",
             text: "An error occurred, please try again",
             icon: "error",
             confirmButtonText: "OK",
-          })
+          });
           this.setState({ isCanceling: false });
         }
         // this.setState({
@@ -256,16 +258,16 @@ class NewLicences extends PureComponent {
         //   userApproveData: res,
         // });
       })
-      .catch(error => {
+      .catch((error) => {
         this.setState({ isCanceling: false });
         alert(error);
       });
-  }
+  };
 
   reviewApplication = async (value) => {
-    this.setState({ isApproving: true, disabled: true })
+    this.setState({ isApproving: true, disabled: true });
     let date = new Date();
-    let newValues = value.split(",")
+    let newValues = value.split(",");
 
     if (this.state.licenceNumber === "") {
       Swal.fire({
@@ -273,34 +275,33 @@ class NewLicences extends PureComponent {
         text: "Please enter a licence number",
         icon: "error",
         confirmButtonText: "OK",
-      })
-      this.setState({ isApproving: false, disabled: false })
+      });
+      this.setState({ isApproving: false, disabled: false });
     } else if (this.state.startDate === "") {
       Swal.fire({
         title: "Empty",
         text: "Please licence approval date",
         icon: "error",
         confirmButtonText: "OK",
-      })
-      this.setState({ isApproving: false, disabled: false })
+      });
+      this.setState({ isApproving: false, disabled: false });
     } else if (this.state.remarks === "") {
       Swal.fire({
         title: "Empty",
         text: "Please specify remarks",
         icon: "error",
         confirmButtonText: "OK",
-      })
-      this.setState({ isApproving: false, disabled: false })
+      });
+      this.setState({ isApproving: false, disabled: false });
     } else if (this.state.approval === "") {
       Swal.fire({
         title: "Empty",
         text: "Please specify approval status",
         icon: "error",
         confirmButtonText: "OK",
-      })
-      this.setState({ isApproving: false, disabled: false })
+      });
+      this.setState({ isApproving: false, disabled: false });
     } else {
-
       var obj = {
         method: "PUT",
         headers: {
@@ -313,7 +314,7 @@ class NewLicences extends PureComponent {
           licensedate: this.state.startDate,
           licensenumber: this.state.licenceNumber,
           licenseremarks: this.state.remarks,
-          recid: newValues[0].trim()
+          recid: newValues[0].trim(),
         }),
       };
       await fetch(`${baseUrl}License/updatelicenseOfficial`, obj)
@@ -322,16 +323,16 @@ class NewLicences extends PureComponent {
           console.warn(responseJson);
 
           if (responseJson.message === "License updated Successfully") {
-            this.setState({ isApproving: false, disabled: false })
+            this.setState({ isApproving: false, disabled: false });
             Swal.fire({
               title: "Success",
               text: responseJson.message,
               icon: "success",
               confirmButtonText: "OK",
             }).then(() => {
-              window.location.reload()
+              window.location.reload();
               // this.props.history.push("/new-licenses")
-            })
+            });
           } else {
             this.setState({ isApproving: false, disabled: false });
             Swal.fire({
@@ -358,25 +359,25 @@ class NewLicences extends PureComponent {
     const url = `${baseUrl}License/getlicenseByRecID/${recid}`;
     this.setState({ isApprovalLoading: true });
     fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        "Accept": "application/json",
+        Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("token"),
       },
     })
-      .then(res => res.json())
-      .then(res => {
+      .then((res) => res.json())
+      .then((res) => {
         this.setState({
           isApprovalLoading: false,
           userApproveData: res,
         });
       })
-      .catch(error => {
+      .catch((error) => {
         this.setState({ isApprovalLoading: false });
         alert(error);
       });
-  }
+  };
 
   upLoadCertificate = async (recid) => {
     this.setState({ isUploading: true, disabled: true });
@@ -389,7 +390,7 @@ class NewLicences extends PureComponent {
       },
       body: JSON.stringify({
         recid: this.state.recid,
-        imageToBase64String: FILEBASE64
+        imageToBase64String: FILEBASE64,
       }),
     };
     await fetch(`${baseUrl}License/uploadLicenseCertificate`, obj)
@@ -399,16 +400,16 @@ class NewLicences extends PureComponent {
         // console.warn(responseJson);
 
         if (responseJson.message === "Image Updated Successfully") {
-          this.setState({ isUploading: false, disabled: false })
+          this.setState({ isUploading: false, disabled: false });
           Swal.fire({
             title: "Success",
             text: responseJson.message,
             icon: "success",
             confirmButtonText: "OK",
           }).then(() => {
-            window.location.reload()
+            window.location.reload();
             // this.props.history.push("/new-registrations")
-          })
+          });
         } else {
           this.setState({ isUploading: false, disabled: false });
           Swal.fire({
@@ -428,7 +429,7 @@ class NewLicences extends PureComponent {
           confirmButtonText: "OK",
         });
       });
-  }
+  };
 
   // getIndividualLicense = async ( userid ) => {
   //   const url = `${baseUrl}License/getlicenseByUserID/${userid}`;
@@ -460,27 +461,26 @@ class NewLicences extends PureComponent {
     const url = `${baseUrl}License/getlicenseByUserID/${userid}`;
     this.setState({ isLicenceLoading: true });
     fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("token"),
       },
     })
-      .then(res => res.json())
-      .then(res => {
+      .then((res) => res.json())
+      .then((res) => {
         console.warn(res);
         this.setState({
           isLicenceLoading: false,
           licenceData: res,
         });
       })
-      .catch(error => {
+      .catch((error) => {
         this.setState({ error: true, isLicenceLoading: false });
         alert(error);
       });
-  }
-
+  };
 
   showTable = () => {
     const { postsPerPage, currentPage, data, filteredData } = this.state;
@@ -489,31 +489,80 @@ class NewLicences extends PureComponent {
     const currentPosts = filteredData.slice(indexOfFirstPost, indexOfLastPost);
 
     try {
-      return typeof (data) !== undefined && currentPosts.map((item, index) => {
-        return (
-          <tr>
-            <td className="text-xs font-weight-bold">{index + 1}</td>
-            <td className="text-xs font-weight-bold">{item.title}</td>
-            <td className="text-xs font-weight-bold">{item.surname + ' ' + item.othernames}</td>
-            <td className="text-xs font-weight-bold">{(item.licensenumber)}</td>
-            <td className={item.applicationstatus === "approved" ? 'badge bg-success mt-3' : item.applicationstatus == "pending" ? "badge bg-warning mt-3" : item.applicationstatus === "rejected" ? 'badge bg-danger mt-3' : ""}>{(item.applicationstatus)}</td>
-            <td className="text-xs font-weight-bold">{moment(item.applicationdaterecieved).format('LL')}</td>
-            <td className="text-xs font-weight-bold">{moment(item.licensedate).format('LL') === "Invalid date" ? null : moment(item.licensedate).format('LL')}</td>
-            <td>
-              <button className="btn btn-primary-2 mb-0" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false"><span class="iconify" data-icon="charm:menu-meatball" style={{ fontSize: 'large' }} ></span></button>
-              <ul className="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4" aria-labelledby="#dropdownMenuButton2">
-                {parseInt(localStorage.getItem("canView")) === 1 &&
-                  <li className="mb-2">
-                    <a className="dropdown-item border-radius-md" href="javascript:;">
-                      <div className="d-flex py-1">
-                        <h6 className="text-sm font-weight-normal mb-1">
-                          <span id={item.userid} onClick={() => this.getLicenceDetails(item.userid)} className="font-weight-bold" data-bs-toggle="modal" data-bs-target="#exampleModal1">Review Submission</span>
-                        </h6>
-                      </div>
-                    </a>
-                  </li>
+      return (
+        typeof data !== undefined &&
+        currentPosts.map((item, index) => {
+          return (
+            <tr>
+              <td className="text-xs font-weight-bold">{index + 1}</td>
+              <td className="text-xs font-weight-bold">{item.title}</td>
+              <td className="text-xs font-weight-bold">
+                {item.surname + " " + item.othernames}
+              </td>
+              <td className="text-xs font-weight-bold">{item.licensenumber}</td>
+              <td
+                className={
+                  item.applicationstatus === "approved"
+                    ? "badge bg-success mt-3"
+                    : item.applicationstatus == "pending"
+                    ? "badge bg-warning mt-3"
+                    : item.applicationstatus === "rejected"
+                    ? "badge bg-danger mt-3"
+                    : ""
                 }
-                {/*parseInt(localStorage.getItem("canView")) === 1 &&
+              >
+                {item.applicationstatus}
+              </td>
+              <td className="text-xs font-weight-bold">
+                {moment(item.applicationdaterecieved).format("LL")}
+              </td>
+              <td className="text-xs font-weight-bold">
+                {moment(item.licensedate).format("LL") === "Invalid date"
+                  ? null
+                  : moment(item.licensedate).format("LL")}
+              </td>
+              <td>
+                <button
+                  className="btn btn-primary-2 mb-0"
+                  id="dropdownMenuButton2"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <span
+                    class="iconify"
+                    data-icon="charm:menu-meatball"
+                    style={{ fontSize: "large" }}
+                  ></span>
+                </button>
+                <ul
+                  className="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4"
+                  aria-labelledby="#dropdownMenuButton2"
+                >
+                  {parseInt(localStorage.getItem("canView")) === 1 && (
+                    <li className="mb-2">
+                      <a
+                        className="dropdown-item border-radius-md"
+                        href="javascript:;"
+                      >
+                        <div className="d-flex py-1">
+                          <h6 className="text-sm font-weight-normal mb-1">
+                            <span
+                              id={item.userid}
+                              onClick={() =>
+                                this.getLicenceDetails(item.userid)
+                              }
+                              className="font-weight-bold"
+                              data-bs-toggle="modal"
+                              data-bs-target="#exampleModal1"
+                            >
+                              Review Submission
+                            </span>
+                          </h6>
+                        </div>
+                      </a>
+                    </li>
+                  )}
+                  {/*parseInt(localStorage.getItem("canView")) === 1 &&
                   <li className="mb-2">
                     <a className="dropdown-item border-radius-md" href="javascript:;">
                       <div className="d-flex py-1">
@@ -525,7 +574,7 @@ class NewLicences extends PureComponent {
                   </li>
                 */}
 
-                {/*parseInt(localStorage.getItem("license")) === 1 &&
+                  {/*parseInt(localStorage.getItem("license")) === 1 &&
                   <li className="mb-2" onClick={() => this.getFileUpload(item.recid)} className="font-weight-bold" data-bs-toggle="modal" data-bs-target="#upLoadCertificate">
                     <a className="dropdown-item border-radius-md" href="javascript:;">
                       <div className="d-flex py-1">
@@ -537,61 +586,122 @@ class NewLicences extends PureComponent {
                   </li>
                 */}
 
-                {parseInt(localStorage.getItem("license")) === 1 &&
-                  <li className="mb-2">
-                    <a className="dropdown-item border-radius-md" href="javascript:;">
-                      <div className="d-flex py-1">
-                        <h6 className="text-sm font-weight-normal mb-1">
-                          <span id={item.recid} onClick={() => this.reviewLicenceRegistration(item.recid)} className="font-weight-bold" data-bs-toggle="modal" data-bs-target="#exampleModal3">Approve / Reject</span>
-                        </h6>
-                      </div>
-                    </a>
-                  </li>
-                }
+                  {parseInt(localStorage.getItem("license")) === 1 && (
+                    <li className="mb-2">
+                      <a
+                        className="dropdown-item border-radius-md"
+                        href="javascript:;"
+                      >
+                        <div className="d-flex py-1">
+                          <h6 className="text-sm font-weight-normal mb-1">
+                            <span
+                              id={item.recid}
+                              onClick={() =>
+                                this.reviewLicenceRegistration(item.recid)
+                              }
+                              className="font-weight-bold"
+                              data-bs-toggle="modal"
+                              data-bs-target="#exampleModal3"
+                            >
+                              Approve / Reject
+                            </span>
+                          </h6>
+                        </div>
+                      </a>
+                    </li>
+                  )}
 
-                {parseInt(localStorage.getItem("license")) === 1 &&
-                  <li className="mb-2" data-bs-toggle="modal" data-bs-target="#cancel">
-                    <a className="dropdown-item border-radius-md" href="javascript:;">
-                      <div className="d-flex py-1">
-                        <h6 className="text-sm font-weight-normal mb-1">
-                          <span className="font-weight-bold text-danger">Cancel Application</span>
-                        </h6>
-                      </div>
-                    </a>
-                  </li>
-                }
+                  {parseInt(localStorage.getItem("license")) === 1 && (
+                    <li
+                      className="mb-2"
+                      data-bs-toggle="modal"
+                      data-bs-target="#cancel"
+                    >
+                      <a
+                        className="dropdown-item border-radius-md"
+                        href="javascript:;"
+                      >
+                        <div className="d-flex py-1">
+                          <h6 className="text-sm font-weight-normal mb-1">
+                            <span className="font-weight-bold text-danger">
+                              Cancel Application
+                            </span>
+                          </h6>
+                        </div>
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              </td>
+              <td></td>
 
-              </ul>
-            </td>
-            <td></td>
-
-            {/*Cancel Application */}
-            <div class="modal fade" id="cancel" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header bg-danger">
-                    <h5 class="modal-title text-uppercase font-weight-bold text-light" id="exampleModalLabel">Cancel Application</h5>
-                    <button type="button" class="btn-close bg-light text-light" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                    Are you sure you want to cancel this application? <br />You cannot UNDO this action.
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id={item.recid} onClick={() => this.cancelApplication(item.recid)}>{this.state.isCanceling ? <Spinner animation="border" className="text-center" variant="light" size="lg" /> : "Yes, Continue"}</button>
+              {/*Cancel Application */}
+              <div
+                class="modal fade"
+                id="cancel"
+                tabindex="-1"
+                aria-labelledby="cancelModalLabel"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header bg-danger">
+                      <h5
+                        class="modal-title text-uppercase font-weight-bold text-light"
+                        id="exampleModalLabel"
+                      >
+                        Cancel Application
+                      </h5>
+                      <button
+                        type="button"
+                        class="btn-close bg-light text-light"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <div class="modal-body">
+                      Are you sure you want to cancel this application? <br />
+                      You cannot UNDO this action.
+                    </div>
+                    <div class="modal-footer">
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-danger"
+                        id={item.recid}
+                        onClick={() => this.cancelApplication(item.recid)}
+                      >
+                        {this.state.isCanceling ? (
+                          <Spinner
+                            animation="border"
+                            className="text-center"
+                            variant="light"
+                            size="lg"
+                          />
+                        ) : (
+                          "Yes, Continue"
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </tr>
-        );
-      });
+            </tr>
+          );
+        })
+      );
     } catch (e) {
       Swal.fire({
         title: "Error",
         text: e.message,
         type: "error",
-      })
+      });
     }
   };
 
@@ -600,18 +710,25 @@ class NewLicences extends PureComponent {
     const pageNumbers = [];
     const totalPosts = filteredData.length;
     for (let i = 1; i <= Math.ceil(totalPosts / postsPerPage); i++) {
-      pageNumbers.push(i)
+      pageNumbers.push(i);
     }
 
     const paginate = (pageNumbers) => {
-      this.setState({ currentPage: pageNumbers })
-    }
+      this.setState({ currentPage: pageNumbers });
+    };
 
     return (
       <nav>
         <ul className="pagination">
-          {pageNumbers.map(number => (
-            <li key={number} className={this.state.currentPage === number ? 'page-item active' : 'page-item'}>
+          {pageNumbers.map((number) => (
+            <li
+              key={number}
+              className={
+                this.state.currentPage === number
+                  ? "page-item active"
+                  : "page-item"
+              }
+            >
               <button onClick={() => paginate(number)} className="page-link">
                 {number}
               </button>
@@ -619,8 +736,8 @@ class NewLicences extends PureComponent {
           ))}
         </ul>
       </nav>
-    )
-  }
+    );
+  };
 
   componentDidMount() {
     this.showLicenses();
@@ -630,17 +747,27 @@ class NewLicences extends PureComponent {
   handleFilterChange = (e) => {
     const filterValue = e.target.value;
     this.setState({ filterValue }, () => {
-      const filteredData = this.state?.data?.filter(item =>
-        item?.othernames?.toLowerCase()?.includes(filterValue?.toLowerCase())
-        || item?.surname?.toLowerCase()?.includes(filterValue?.toLowerCase())
-
+      const filteredData = this.state?.data?.filter(
+        (item) =>
+          item?.othernames
+            ?.toLowerCase()
+            ?.includes(filterValue?.toLowerCase()) ||
+          item?.surname?.toLowerCase()?.includes(filterValue?.toLowerCase()),
       );
       this.setState({ filteredData });
     });
+    this.setState({ currentPage: 1 });
   };
 
   render() {
-    const { isLoading, isLicenceLoading, isCertificateLoading, isUploading, isApprovalLoading, isApproving } = this.state;
+    const {
+      isLoading,
+      isLicenceLoading,
+      isCertificateLoading,
+      isUploading,
+      isApprovalLoading,
+      isApproving,
+    } = this.state;
     return (
       <div className="container">
         <div className="row">
@@ -648,14 +775,19 @@ class NewLicences extends PureComponent {
             <Sidebar />
           </div>
           <div className="col-md-10">
-            <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" id="dashboard">
+            <main
+              class="main-content position-relative max-height-vh-100 h-100 border-radius-lg"
+              id="dashboard"
+            >
               <div class="container-fluid px-4">
-                <div class="rown">
+                <div class="row">
                   <div class="col-12">
                     <div class="card my-3">
                       <div class="card-header pb-4 bg-success">
                         <div class="d-flex flex-wrap align-items-center justify-content-between">
-                          <h5 className="text-light">New Licence Applications</h5>
+                          <h5 className="text-light">
+                            New Licence Applications
+                          </h5>
                           {/*
                      <div class="d-flex align-items-center">
                        <button class="btn bg-gradient-primary mb-0"  data-bs-toggle="modal" data-bs-target="#exampleModal" > <span class="iconify" data-icon="carbon:add" style={{fontSize: 'large'}}></span>Create User</button>
@@ -664,91 +796,179 @@ class NewLicences extends PureComponent {
                       </div>
 
                       <div class="card-body">
-                        {this.state.loading ? <Spinner animation="border" style={{ position: 'relative', left: 450, top: 0 }} className="text-center" variant="success" size="lg" /> :
+                        {this.state.loading ? (
+                          <Spinner
+                            animation="border"
+                            style={{ position: "relative", left: 450, top: 0 }}
+                            className="text-center"
+                            variant="success"
+                            size="lg"
+                          />
+                        ) : (
                           <div class="container-fluid py-4">
                             <div className="d-flex justify-content-end">
-                              <input onChange={this.handleFilterChange} type="text" id="myInput" className="outline-none h-10 m-2" placeholder="Search for names.." title="Type in a name" />
+                              <input
+                                onChange={this.handleFilterChange}
+                                type="text"
+                                id="myInput"
+                                className="outline-none h-10 m-2"
+                                placeholder="Search for names.."
+                                title="Type in a name"
+                              />
                             </div>
                             <div class="table-responsive p-0 pb-2">
-                              <table id="table" className="table align-items-center justify-content-center mb-0">
+                              <table
+                                id="table"
+                                className="table align-items-center justify-content-center mb-0"
+                              >
                                 <thead>
                                   <tr>
-                                    <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">S/N</th>
-                                    <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Title</th>
-                                    <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Name</th>
-                                    <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Licence No.</th>
-                                    <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Application Status</th>
-                                    <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Date Applied</th>
-                                    <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Date Approved</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Action</th>
+                                    <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">
+                                      S/N
+                                    </th>
+                                    <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">
+                                      Title
+                                    </th>
+                                    <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">
+                                      Name
+                                    </th>
+                                    <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">
+                                      Licence No.
+                                    </th>
+                                    <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">
+                                      Application Status
+                                    </th>
+                                    <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">
+                                      Date Applied
+                                    </th>
+                                    <th className="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">
+                                      Date Approved
+                                    </th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                      Action
+                                    </th>
                                   </tr>
                                 </thead>
 
-                                <tbody>
-                                  {this.showTable()}
-                                </tbody>
+                                <tbody>{this.showTable()}</tbody>
                               </table>
-                              {this.state.noData && <center><p>No data available in the table</p></center>}
-                              <div style={{ float: 'right' }}>
+                              {this.state.noData && (
+                                <center>
+                                  <p>No data available in the table</p>
+                                </center>
+                              )}
+                              <div style={{ float: "right" }}>
                                 {this.showPagination()}
                               </div>
                             </div>
-                          </div>}
-
+                          </div>
+                        )}
 
                         {/* <!-- Modal2 --> */}
-                        <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div
+                          class="modal fade"
+                          id="exampleModal2"
+                          tabindex="-1"
+                          aria-labelledby="exampleModalLabel"
+                          aria-hidden="true"
+                        >
                           <div class="modal-dialog">
                             <div class="modal-content">
                               <div class="modal-header d-flex align-items-center justify-content-between">
                                 <h5 class="modal-title">View Number Type</h5>
-                                <button type="button" class="btn btn-link m-0 p-0 text-dark fs-4" data-bs-dismiss="modal" aria-label="Close"><span class="iconify" data-icon="carbon:close"></span></button>
+                                <button
+                                  type="button"
+                                  class="btn btn-link m-0 p-0 text-dark fs-4"
+                                  data-bs-dismiss="modal"
+                                  aria-label="Close"
+                                >
+                                  <span
+                                    class="iconify"
+                                    data-icon="carbon:close"
+                                  ></span>
+                                </button>
                               </div>
                               <div class="modal-body">
                                 <div class="row">
                                   <div class="col-lg-12 col-md-4 col-sm-6">
-                                    <label class="form-label">Number Type </label>
+                                    <label class="form-label">
+                                      Number Type{" "}
+                                    </label>
                                     <div class="input-group input-group-outline mb-3">
-                                      <input type="text" class="form-control" placeholder="00123384743" aria-label="Disabled input example" disabled />
+                                      <input
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="00123384743"
+                                        aria-label="Disabled input example"
+                                        disabled
+                                      />
                                     </div>
                                   </div>
                                   <div class="col-lg-12 col-md-4 col-sm-6">
-                                    <label class="form-label">Number Sub Type </label>
+                                    <label class="form-label">
+                                      Number Sub Type{" "}
+                                    </label>
                                     <div class="input-group input-group-outline mb-3">
-                                      <input type="text" class="form-control" placeholder="1234" aria-label="Disabled input example" disabled />
+                                      <input
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="1234"
+                                        aria-label="Disabled input example"
+                                        disabled
+                                      />
                                     </div>
                                   </div>
-                                  <span class="pt-3"><hr class="dark horizontal my-3" /></span>
+                                  <span class="pt-3">
+                                    <hr class="dark horizontal my-3" />
+                                  </span>
                                   <div class="table-responsive p-0 pb-2">
                                     <table class="table align-items-center justify-content-center mb-0">
                                       <tbody>
-                                        <div class="text-uppercase text-primary text-xs font-weight-bolder opacity-7 ps-2">Alocation Stage:</div>
+                                        <div class="text-uppercase text-primary text-xs font-weight-bolder opacity-7 ps-2">
+                                          Alocation Stage:
+                                        </div>
                                         <tr>
                                           <td>
-                                            <span class="text-xs font-weight-bold text-primary">Fees:</span>
+                                            <span class="text-xs font-weight-bold text-primary">
+                                              Fees:
+                                            </span>
                                           </td>
                                           <td>
-                                            <span class="text-sm font-weight-bold">$500</span>
+                                            <span class="text-sm font-weight-bold">
+                                              $500
+                                            </span>
                                           </td>
                                           <td>
-                                            <span class="text-sm font-weight-bold">$500</span>
+                                            <span class="text-sm font-weight-bold">
+                                              $500
+                                            </span>
                                           </td>
                                           <td>
-                                            <span class="text-xs font-weight-bold">$500</span>
+                                            <span class="text-xs font-weight-bold">
+                                              $500
+                                            </span>
                                           </td>
                                         </tr>
                                         <tr>
                                           <td>
-                                            <span class="text-xs font-weight-bold text-primary">Tax:</span>
+                                            <span class="text-xs font-weight-bold text-primary">
+                                              Tax:
+                                            </span>
                                           </td>
                                           <td>
-                                            <span class="text-sm font-weight-bold">90%</span>
+                                            <span class="text-sm font-weight-bold">
+                                              90%
+                                            </span>
                                           </td>
                                           <td>
-                                            <span class="text-sm font-weight-bold">90%</span>
+                                            <span class="text-sm font-weight-bold">
+                                              90%
+                                            </span>
                                           </td>
                                           <td>
-                                            <span class="text-xs font-weight-bold">90%</span>
+                                            <span class="text-xs font-weight-bold">
+                                              90%
+                                            </span>
                                           </td>
                                         </tr>
                                       </tbody>
@@ -757,33 +977,51 @@ class NewLicences extends PureComponent {
                                   <div class="table-responsive p-0 pb-0 pt-2">
                                     <table class="table align-items-center justify-content-center mb-0">
                                       <tbody>
-                                        <div class="text-uppercase text-primary text-xs font-weight-bolder opacity-7 ps-2">Submission Stage:</div>
+                                        <div class="text-uppercase text-primary text-xs font-weight-bolder opacity-7 ps-2">
+                                          Submission Stage:
+                                        </div>
                                         <tr>
                                           <td>
-                                            <span class="text-xs font-weight-bold text-primary">Fees:</span>
+                                            <span class="text-xs font-weight-bold text-primary">
+                                              Fees:
+                                            </span>
                                           </td>
                                           <td>
-                                            <span class="text-sm font-weight-bold">$500</span>
+                                            <span class="text-sm font-weight-bold">
+                                              $500
+                                            </span>
                                           </td>
                                           <td>
-                                            <span class="text-sm font-weight-bold">$500</span>
+                                            <span class="text-sm font-weight-bold">
+                                              $500
+                                            </span>
                                           </td>
                                           <td>
-                                            <span class="text-xs font-weight-bold">$500</span>
+                                            <span class="text-xs font-weight-bold">
+                                              $500
+                                            </span>
                                           </td>
                                         </tr>
                                         <tr>
                                           <td>
-                                            <span class="text-xs font-weight-bold text-primary">Tax:</span>
+                                            <span class="text-xs font-weight-bold text-primary">
+                                              Tax:
+                                            </span>
                                           </td>
                                           <td>
-                                            <span class="text-sm font-weight-bold">90%</span>
+                                            <span class="text-sm font-weight-bold">
+                                              90%
+                                            </span>
                                           </td>
                                           <td>
-                                            <span class="text-sm font-weight-bold">90%</span>
+                                            <span class="text-sm font-weight-bold">
+                                              90%
+                                            </span>
                                           </td>
                                           <td>
-                                            <span class="text-xs font-weight-bold">90%</span>
+                                            <span class="text-xs font-weight-bold">
+                                              90%
+                                            </span>
                                           </td>
                                         </tr>
                                       </tbody>
@@ -792,7 +1030,9 @@ class NewLicences extends PureComponent {
                                 </div>
                               </div>
                               <div class="modal-footer">
-                                <button type="button" class="btn btn-primary">Save</button>
+                                <button type="button" class="btn btn-primary">
+                                  Save
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -800,183 +1040,297 @@ class NewLicences extends PureComponent {
                         {/* </body> */}
 
                         {/* <!-- Modal --> */}
-                        <div className="modal fade" id="exampleModal3" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div
+                          className="modal fade"
+                          id="exampleModal3"
+                          tabindex="-1"
+                          aria-labelledby="exampleModalLabel"
+                          aria-hidden="true"
+                        >
                           <div className="modal-dialog">
                             <div className="modal-content">
                               <div className="modal-header d-flex align-items-center justify-content-between">
-                                <h5 className="modal-title">Approve / Reject Application</h5>
-                                <button type="button" className="btn btn-link m-0 p-0 text-dark fs-4" data-bs-dismiss="modal" aria-label="Close"><span class="iconify" data-icon="carbon:close"></span></button>
+                                <h5 className="modal-title">
+                                  Approve / Reject Application
+                                </h5>
+                                <button
+                                  type="button"
+                                  className="btn btn-link m-0 p-0 text-dark fs-4"
+                                  data-bs-dismiss="modal"
+                                  aria-label="Close"
+                                >
+                                  <span
+                                    class="iconify"
+                                    data-icon="carbon:close"
+                                  ></span>
+                                </button>
                               </div>
                               <div className="modal-body">
                                 <div className="row">
                                   <div clasNames="d-flex px-3">
-                                    {isApprovalLoading ? <center><Spinner animation="border" className="text-center" variant="danger" size="lg" /></center> :
+                                    {isApprovalLoading ? (
+                                      <center>
+                                        <Spinner
+                                          animation="border"
+                                          className="text-center"
+                                          variant="danger"
+                                          size="lg"
+                                        />
+                                      </center>
+                                    ) : (
                                       <div className="d-flex flex-column">
                                         {/*<h6 className="text-lg font-weight-normal mb-1">
                      <span className="font-weight-bold">NiCFOsT</span>
                    </h6> */}
-                                        {this.state.userApproveData.map((item) => {
-                                          return (
-                                            <div>
-                                              <span><hr class="dark horizontal my-3" /></span>
+                                        {this.state.userApproveData.map(
+                                          (item) => {
+                                            return (
+                                              <div>
+                                                <span>
+                                                  <hr class="dark horizontal my-3" />
+                                                </span>
 
-                                              <div className="row">
-                                                <label
-                                                  className="h6"
-                                                  style={{ color: "red", marginTop: -36 }}
-                                                  htmlFor="floatingInputCustom"
-                                                >
-                                                  Administrative action
-                                                </label>
-                                                <div className="col-sm-12 col-lg-12 col-md-12 mb-3">
-                                                  <label className="text-dark" htmlFor="role">Status</label>
-                                                  <select
-                                                    className="form-control shadow-none"
-                                                    aria-label="Floating label select example"
-                                                    onChange={this.handleApprovalChange}
-                                                    id="role"
-                                                  >
-                                                    <option selected disabled>--Select Application Status --</option>
-                                                    <option value="approved">Approved</option>
-                                                    <option value="rejected">Rejected</option>
-
-                                                  </select>
-                                                </div>
-
-                                                <div className="col-sm-12 col-lg-12 col-md-12 mb-3">
+                                                <div className="row">
                                                   <label
-                                                    className="form-label text-dark"
+                                                    className="h6"
+                                                    style={{
+                                                      color: "red",
+                                                      marginTop: -36,
+                                                    }}
+                                                    htmlFor="floatingInputCustom"
                                                   >
-                                                    Remarks
+                                                    Administrative action
                                                   </label>
-                                                  <div className="input-group input-group-outline mb-3">
-                                                    <textarea className="form-control shadow-none" onChange={(e) => this.setState({ remarks: e.target.value })}>
-                                                    </textarea>
+                                                  <div className="col-sm-12 col-lg-12 col-md-12 mb-3">
+                                                    <label
+                                                      className="text-dark"
+                                                      htmlFor="role"
+                                                    >
+                                                      Status
+                                                    </label>
+                                                    <select
+                                                      className="form-control shadow-none"
+                                                      aria-label="Floating label select example"
+                                                      onChange={
+                                                        this
+                                                          .handleApprovalChange
+                                                      }
+                                                      id="role"
+                                                    >
+                                                      <option selected disabled>
+                                                        --Select Application
+                                                        Status --
+                                                      </option>
+                                                      <option value="approved">
+                                                        Approved
+                                                      </option>
+                                                      <option value="rejected">
+                                                        Rejected
+                                                      </option>
+                                                    </select>
                                                   </div>
-                                                </div>
-                                              </div>
 
-                                              <hr />
-
-                                              <label
-                                                className="h6"
-                                                style={{ color: "red" }}
-                                                htmlFor="floatingInputCustom"
-                                              >
-                                                Administrative information for approval
-                                              </label>
-
-                                              <div className="row">
-
-                                                <div className="col-sm-12 col-lg-8 col-md-12 mb-3">
-                                                  <label
-                                                    className="form-label text-dark"
-                                                  >
-                                                    Date of approval
-                                                  </label>
-                                                  <div className="input-group input-group-outline mb-3">
-                                                    <label className="form-label"></label>
+                                                  <div className="col-sm-12 col-lg-12 col-md-12 mb-3">
+                                                    <label className="form-label text-dark">
+                                                      Remarks
+                                                    </label>
                                                     <div className="input-group input-group-outline mb-3">
-                                                      <label className="form-label"></label>
-                                                      <DatePicker
-                                                        selected={this.state.startDate}
-                                                        calendarAriaLabel="Select date of birth"
-                                                        className="input-group form-control shadow-none mr-1 mb-3"
-                                                        value={this.state.startDate}
-                                                        onChange={this.handleDateChange}
-                                                        name="startDate"
-                                                        dateFormat="MM/dd/yyyy" />
+                                                      <textarea
+                                                        className="form-control shadow-none"
+                                                        onChange={(e) =>
+                                                          this.setState({
+                                                            remarks:
+                                                              e.target.value,
+                                                          })
+                                                        }
+                                                      ></textarea>
                                                     </div>
                                                   </div>
                                                 </div>
 
-                                                <div className="col-sm-12 col-lg-12 col-md-12 mb-3">
-                                                  <label
-                                                    className="form-label"
+                                                <hr />
+
+                                                <label
+                                                  className="h6"
+                                                  style={{ color: "red" }}
+                                                  htmlFor="floatingInputCustom"
+                                                >
+                                                  Administrative information for
+                                                  approval
+                                                </label>
+
+                                                <div className="row">
+                                                  <div className="col-sm-12 col-lg-8 col-md-12 mb-3">
+                                                    <label className="form-label text-dark">
+                                                      Date of approval
+                                                    </label>
+                                                    <div className="input-group input-group-outline mb-3">
+                                                      <label className="form-label"></label>
+                                                      <div className="input-group input-group-outline mb-3">
+                                                        <label className="form-label"></label>
+                                                        <DatePicker
+                                                          selected={
+                                                            this.state.startDate
+                                                          }
+                                                          calendarAriaLabel="Select date of birth"
+                                                          className="input-group form-control shadow-none mr-1 mb-3"
+                                                          value={
+                                                            this.state.startDate
+                                                          }
+                                                          onChange={
+                                                            this
+                                                              .handleDateChange
+                                                          }
+                                                          name="startDate"
+                                                          dateFormat="MM/dd/yyyy"
+                                                        />
+                                                      </div>
+                                                    </div>
+                                                  </div>
+
+                                                  <div className="col-sm-12 col-lg-12 col-md-12 mb-3">
+                                                    <label className="form-label">
+                                                      Licence number
+                                                    </label>
+                                                    <div className="input-group input-group-outline mb-3">
+                                                      <label className="form-label"></label>
+                                                      <input
+                                                        className="form-control shadow-none"
+                                                        required="required"
+                                                        type="text"
+                                                        onChange={(e) =>
+                                                          this.setState({
+                                                            licenceNumber:
+                                                              e.target.value,
+                                                          })
+                                                        }
+                                                      />
+                                                    </div>
+                                                  </div>
+
+                                                  <div
+                                                    className="text-center"
+                                                    style={{
+                                                      margin: "auto",
+                                                      width: "100%",
+                                                      marginTop: 45,
+                                                    }}
                                                   >
-                                                    Licence number
-                                                  </label>
-                                                  <div className="input-group input-group-outline mb-3">
-                                                    <label className="form-label"></label>
-                                                    <input
-                                                      className="form-control shadow-none"
-                                                      required="required"
-                                                      type="text"
-                                                      onChange={(e) => this.setState({ licenceNumber: e.target.value })}
-                                                    />
+                                                    <button
+                                                      id={`${item.recid}, ${item.licensenumber}`}
+                                                      disabled={
+                                                        this.state.disabled
+                                                      }
+                                                      style={{
+                                                        alignSelf: "center",
+                                                        width: "100%",
+                                                        backgroundColor:
+                                                          "#003314",
+                                                      }}
+                                                      className="btn btn-success btn-lg"
+                                                      onClick={(e) =>
+                                                        this.reviewApplication(
+                                                          `${item.recid}, ${item.licensenumber}`,
+                                                        )
+                                                      }
+                                                    >
+                                                      {isApproving ? (
+                                                        <Spinner
+                                                          animation="border"
+                                                          variant="light"
+                                                          size="sm"
+                                                        />
+                                                      ) : (
+                                                        <span className="font-weight-bold">
+                                                          {/* APPLY <i class="fas fa-chevron-right"></i> */}
+                                                          Submit Review
+                                                        </span>
+                                                      )}
+                                                    </button>
                                                   </div>
                                                 </div>
-
-                                                <div
-                                                  className="text-center"
-                                                  style={{
-                                                    margin: "auto",
-                                                    width: "100%",
-                                                    marginTop: 45,
-                                                  }}
-                                                >
-                                                  <button
-                                                    id={`${item.recid}, ${item.licensenumber}`}
-                                                    disabled={this.state.disabled}
-                                                    style={{
-                                                      alignSelf: "center",
-                                                      width: "100%",
-                                                      backgroundColor: "#003314",
-                                                    }}
-                                                    className="btn btn-success btn-lg"
-                                                    onClick={(e) => this.reviewApplication(`${item.recid}, ${item.licensenumber}`)}
-                                                  >
-                                                    {isApproving ? (
-                                                      <Spinner animation="border" variant="light" size="sm" />
-                                                    ) : (
-                                                      <span className="font-weight-bold">
-                                                        {/* APPLY <i class="fas fa-chevron-right"></i> */}
-                                                        Submit Review
-                                                      </span>
-                                                    )}
-                                                  </button>
-                                                </div>
-
                                               </div>
-                                            </div>
-                                          )
-                                        })}
+                                            );
+                                          },
+                                        )}
                                       </div>
-                                    }
+                                    )}
                                   </div>
 
-                                  <span className="pt-3"><hr class="dark horizontal my-3" /></span>
+                                  <span className="pt-3">
+                                    <hr class="dark horizontal my-3" />
+                                  </span>
                                 </div>
                               </div>
-                              <div class="modal-footer" style={{ display: "none" }}>
-                                <button type="button" data-bs-dismiss="modal" class="btn btn-danger">Close</button>
+                              <div
+                                class="modal-footer"
+                                style={{ display: "none" }}
+                              >
+                                <button
+                                  type="button"
+                                  data-bs-dismiss="modal"
+                                  class="btn btn-danger"
+                                >
+                                  Close
+                                </button>
                               </div>
                             </div>
                           </div>
                         </div>
                         {/* END OF REVIEW REGISTRATION */}
 
-
                         {/* START OF UPLOAD CERTIFICATE */}
-                        <div className="modal fade" id="upLoadCertificate" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div
+                          className="modal fade"
+                          id="upLoadCertificate"
+                          tabindex="-1"
+                          aria-labelledby="exampleModalLabel"
+                          aria-hidden="true"
+                        >
                           <div className="modal-dialog">
                             <div className="modal-content">
                               <div className="modal-header d-flex align-items-center justify-content-between">
-                                <h5 className="modal-title">Upload Certificate</h5>
-                                <button type="button" className="btn btn-link m-0 p-0 text-dark fs-4" data-bs-dismiss="modal" aria-label="Close"><span class="iconify" data-icon="carbon:close"></span></button>
+                                <h5 className="modal-title">
+                                  Upload Certificate
+                                </h5>
+                                <button
+                                  type="button"
+                                  className="btn btn-link m-0 p-0 text-dark fs-4"
+                                  data-bs-dismiss="modal"
+                                  aria-label="Close"
+                                >
+                                  <span
+                                    class="iconify"
+                                    data-icon="carbon:close"
+                                  ></span>
+                                </button>
                               </div>
                               <div className="modal-body">
                                 <div className="row">
                                   <div clasNames="d-flex text-center">
-
-                                    {isLoading ? <Spinner animation="border" style={{ position: 'relative', left: 680, top: 250 }} className="text-center" variant="success" size="lg" /> :
+                                    {isLoading ? (
+                                      <Spinner
+                                        animation="border"
+                                        style={{
+                                          position: "relative",
+                                          left: 680,
+                                          top: 250,
+                                        }}
+                                        className="text-center"
+                                        variant="success"
+                                        size="lg"
+                                      />
+                                    ) : (
                                       <div className="d-flex flex-column">
                                         <div className="col-sm-12 col-lg-12 col-md-12 mb-3">
                                           <label
                                             className="form-label"
-                                            style={{ color: 'black' }}
+                                            style={{ color: "black" }}
                                           >
-                                            Upload Image <span className="text-danger">*</span>
+                                            Upload Image{" "}
+                                            <span className="text-danger">
+                                              *
+                                            </span>
                                           </label>
                                           <div className="input-group input-group-outline mb-3">
                                             <label className="form-label"></label>
@@ -1003,10 +1357,16 @@ class NewLicences extends PureComponent {
                                                 backgroundColor: "#147332",
                                               }}
                                               className="btn btn-success btn-lg col-sm-12 col-lg-12 col-md-12 mb-3"
-                                              onClick={(e) => this.upLoadCertificate()}
+                                              onClick={(e) =>
+                                                this.upLoadCertificate()
+                                              }
                                             >
                                               {isUploading ? (
-                                                <Spinner animation="border" variant="light" size="sm" />
+                                                <Spinner
+                                                  animation="border"
+                                                  variant="light"
+                                                  size="sm"
+                                                />
                                               ) : (
                                                 <span className="font-weight-bold">
                                                   {/* APPLY <i class="fas fa-chevron-right"></i> */}
@@ -1017,13 +1377,21 @@ class NewLicences extends PureComponent {
                                           </div>
                                         </div>
                                       </div>
-                                    }
+                                    )}
                                   </div>
-                                  <span className="pt-3"><hr class="dark horizontal my-3" /></span>
+                                  <span className="pt-3">
+                                    <hr class="dark horizontal my-3" />
+                                  </span>
                                 </div>
                               </div>
                               <div class="modal-footer">
-                                <button type="button" data-bs-dismiss="modal" class="btn btn-primary">Close</button>
+                                <button
+                                  type="button"
+                                  data-bs-dismiss="modal"
+                                  class="btn btn-primary"
+                                >
+                                  Close
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -1031,95 +1399,238 @@ class NewLicences extends PureComponent {
                         {/* END OF UPLOAD CERTIFICATE */}
 
                         {/* View Certificate */}
-                        <div className="modal fade" id="certificate" tabindex="-1" aria-labelledby="ViewCertificate" aria-hidden="true">
+                        <div
+                          className="modal fade"
+                          id="certificate"
+                          tabindex="-1"
+                          aria-labelledby="ViewCertificate"
+                          aria-hidden="true"
+                        >
                           <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                             <div className="modal-content">
                               <div className="modal-header d-flex align-items-center justify-content-between">
-                                <h5 className="modal-title">View Certificate</h5>
+                                <h5 className="modal-title">
+                                  View Certificate
+                                </h5>
                                 <div class="d-flex align-items-center">
-                                  <button class="btn bg-danger text-light font-weight-bold mb-0"> <span class="iconify" data-icon="carbon:printer" style={{ fontSize: 36 }}></span> Print</button>
+                                  <button class="btn bg-danger text-light font-weight-bold mb-0">
+                                    {" "}
+                                    <span
+                                      class="iconify"
+                                      data-icon="carbon:printer"
+                                      style={{ fontSize: 36 }}
+                                    ></span>{" "}
+                                    Print
+                                  </button>
                                 </div>
-                                <button type="button" className="btn btn-link m-0 p-0 text-dark fs-4" data-bs-dismiss="modal" aria-label="Close"><span class="iconify" data-icon="carbon:close"></span></button>
+                                <button
+                                  type="button"
+                                  className="btn btn-link m-0 p-0 text-dark fs-4"
+                                  data-bs-dismiss="modal"
+                                  aria-label="Close"
+                                >
+                                  <span
+                                    class="iconify"
+                                    data-icon="carbon:close"
+                                  ></span>
+                                </button>
                               </div>
                               <div className="modal-body">
                                 <div className="row">
                                   <div clasNames="d-flex px-3">
-
-                                    {isCertificateLoading ? <center><Spinner animation="border" className="text-center" variant="success" size="lg" /></center> :
+                                    {isCertificateLoading ? (
+                                      <center>
+                                        <Spinner
+                                          animation="border"
+                                          className="text-center"
+                                          variant="success"
+                                          size="lg"
+                                        />
+                                      </center>
+                                    ) : (
                                       <div className="d-flex flex-column">
-                                        {this.state.userCertificate.map((item) => {
-                                          return (
-                                            <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg " style={{ width: !localStorage.getItem("token") ? '90%' : '100%', position: localStorage.getItem("token") ? 'relative' : '', right: 0, padding: 18, float: !localStorage.getItem("token") ? '' : 'right', marginBottom: 90 }}>
-                                              <div className="container-fluid px-4">
-                                                <div className="rown">
-                                                  <div className="col-12">
-                                                    <div className="card my-3 mb-4">
-                                                      <div className="card-header pb-0 bg-success">
-                                                        <div className="text-center">
-                                                          <h5 className="text-light text-center font-weight-bold mb-4">{`Certificate For ${item.surname} ${item.othernames}`}</h5>
+                                        {this.state.userCertificate.map(
+                                          (item) => {
+                                            return (
+                                              <main
+                                                class="main-content position-relative max-height-vh-100 h-100 border-radius-lg "
+                                                style={{
+                                                  width: !localStorage.getItem(
+                                                    "token",
+                                                  )
+                                                    ? "90%"
+                                                    : "100%",
+                                                  position:
+                                                    localStorage.getItem(
+                                                      "token",
+                                                    )
+                                                      ? "relative"
+                                                      : "",
+                                                  right: 0,
+                                                  padding: 18,
+                                                  float: !localStorage.getItem(
+                                                    "token",
+                                                  )
+                                                    ? ""
+                                                    : "right",
+                                                  marginBottom: 90,
+                                                }}
+                                              >
+                                                <div className="container-fluid px-4">
+                                                  <div className="rown">
+                                                    <div className="col-12">
+                                                      <div className="card my-3 mb-4">
+                                                        <div className="card-header pb-0 bg-success">
+                                                          <div className="text-center">
+                                                            <h5 className="text-light text-center font-weight-bold mb-4">{`Certificate For ${item.surname} ${item.othernames}`}</h5>
+                                                          </div>
+                                                        </div>
+                                                        {/* <div class="card-body"> */}
+                                                        <div
+                                                          className="container"
+                                                          style={{
+                                                            marginTop: 18,
+                                                            padding: 9,
+                                                          }}
+                                                        >
+                                                          <div
+                                                            style={{
+                                                              marginTop: 0,
+                                                            }}
+                                                          ></div>
+                                                          <center>
+                                                            {item.licensecertificate ? (
+                                                              <img
+                                                                crossorigin="anonymous"
+                                                                width="450"
+                                                                height="450"
+                                                                src={`${item.licensecertificate}`}
+                                                              />
+                                                            ) : (
+                                                              <p>
+                                                                No certificate
+                                                                uploaded for
+                                                                this user.
+                                                              </p>
+                                                            )}
+                                                          </center>
                                                         </div>
                                                       </div>
-                                                      {/* <div class="card-body"> */}
-                                                      <div className="container" style={{ marginTop: 18, padding: 9 }}>
-                                                        <div style={{ marginTop: 0 }}></div>
-                                                        <center>
-                                                          {item.licensecertificate ?
-                                                            <img crossorigin="anonymous" width='450' height='450' src={`${item.licensecertificate}`} />
-                                                            : <p>No certificate uploaded for this user.</p>}
-                                                        </center>
-
-                                                      </div>
-
                                                     </div>
                                                   </div>
                                                 </div>
-                                              </div>
-                                              {/*   </div>*/}
-                                            </main>
-                                          )
-                                        })}
+                                                {/*   </div>*/}
+                                              </main>
+                                            );
+                                          },
+                                        )}
                                       </div>
-                                    }
+                                    )}
                                   </div>
-                                  <span className="pt-3"><hr class="dark horizontal my-3" /></span>
+                                  <span className="pt-3">
+                                    <hr class="dark horizontal my-3" />
+                                  </span>
                                 </div>
                               </div>
                               <div class="modal-footer">
-                                <button type="button" data-bs-dismiss="modal" class="btn btn-danger">Close</button>
+                                <button
+                                  type="button"
+                                  data-bs-dismiss="modal"
+                                  class="btn btn-danger"
+                                >
+                                  Close
+                                </button>
                               </div>
                             </div>
                           </div>
                         </div>
                         {/* View Certificate */}
 
-
                         {/* View Submission */}
-                        <div className="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div
+                          className="modal fade"
+                          id="exampleModal1"
+                          tabindex="-1"
+                          aria-labelledby="exampleModalLabel"
+                          aria-hidden="true"
+                        >
                           <div className="modal-dialog modal-xl">
                             <div className="modal-content">
                               <div className="modal-header d-flex align-items-center justify-content-between bg-success">
-                                <h5 className="modal-title text-light">Newly Applied Licence</h5>
-                                <button className="text-light btn btn-primary btn-lg" style={{ marginRight: 18 }} onClick={() => this.print()}>Print</button>
-                                <button type="button" className="btn btn-link m-0 p-0 text-light fs-4" data-bs-dismiss="modal" aria-label="Close"><span class="iconify" data-icon="carbon:close"></span></button>
+                                <h5 className="modal-title text-light">
+                                  Newly Applied Licence
+                                </h5>
+                                <button
+                                  className="text-light btn btn-primary btn-lg"
+                                  style={{ marginRight: 18 }}
+                                  onClick={() => this.print()}
+                                >
+                                  Print
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-link m-0 p-0 text-light fs-4"
+                                  data-bs-dismiss="modal"
+                                  aria-label="Close"
+                                >
+                                  <span
+                                    class="iconify"
+                                    data-icon="carbon:close"
+                                  ></span>
+                                </button>
                               </div>
-                              <div className="text-center container-fluid px-4 d-flex justify-content-between" style={{ width: '100%', justifyContent: 'space-evenly', alignItems: 'center', position: 'relative', top: 18 }}>
+                              <div
+                                className="text-center container-fluid px-4 d-flex justify-content-between"
+                                style={{
+                                  width: "100%",
+                                  justifyContent: "space-evenly",
+                                  alignItems: "center",
+                                  position: "relative",
+                                  top: 18,
+                                }}
+                              >
                                 <div>
-                                  <img src={logo} className="navbar-brand-img" alt="main_logo" style={{ width: 81 }} />
+                                  <img
+                                    src={logo}
+                                    className="navbar-brand-img"
+                                    alt="main_logo"
+                                    style={{ width: 81 }}
+                                  />
                                 </div>
                                 <div>
-                                  <h4 className="font-weight-bold text-center">NIGERIAN COUNCIL OF FOOD SCIENCE AND TECHNOLOGY (NiCFoST)</h4>
+                                  <h4 className="font-weight-bold text-center">
+                                    NIGERIAN COUNCIL OF FOOD SCIENCE AND
+                                    TECHNOLOGY (NiCFoST)
+                                  </h4>
                                 </div>
                                 <div>
-                                  <img src={coat} className="navbar-brand-img h-100" style={{ width: 126 }} alt="main_logo" />
+                                  <img
+                                    src={coat}
+                                    className="navbar-brand-img h-100"
+                                    style={{ width: 126 }}
+                                    alt="main_logo"
+                                  />
                                 </div>
                               </div>
                               <div className="modal-body">
                                 <div className="row">
                                   <div clasNames="d-flex px-3">
                                     <div className="my-auto text-center">
-                                      <img src="../assets/img/account.svg" className="avatar avatar-exbg  me-4 " />
+                                      <img
+                                        src="../assets/img/account.svg"
+                                        className="avatar avatar-exbg  me-4 "
+                                      />
                                     </div>
-                                    {isLicenceLoading ? <center><Spinner animation="border" className="text-center" variant="success" size="lg" /></center> :
+                                    {isLicenceLoading ? (
+                                      <center>
+                                        <Spinner
+                                          animation="border"
+                                          className="text-center"
+                                          variant="success"
+                                          size="lg"
+                                        />
+                                      </center>
+                                    ) : (
                                       <div className="d-flex flex-column">
                                         {/*<h6 className="text-lg font-weight-normal mb-1">
                                <span className="font-weight-bold">NiCFOsT</span>
@@ -1127,14 +1638,20 @@ class NewLicences extends PureComponent {
                                         {this.state.licenceData.map((item) => {
                                           return (
                                             <div>
-                                              <h4 className="text-dark text-uppercase ms-sm-4 ">{item.title + ' ' + item.surname + ' ' + item.othernames}</h4>
-                                              <span className="pt-3"><hr class="dark horizontal my-3" /></span>
+                                              <h4 className="text-dark text-uppercase ms-sm-4 ">
+                                                {item.title +
+                                                  " " +
+                                                  item.surname +
+                                                  " " +
+                                                  item.othernames}
+                                              </h4>
+                                              <span className="pt-3">
+                                                <hr class="dark horizontal my-3" />
+                                              </span>
 
                                               <div className="row">
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Application date
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1143,14 +1660,14 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={moment(item.applicationdate).format('LL')}
+                                                      value={moment(
+                                                        item.applicationdate,
+                                                      ).format("LL")}
                                                     />
                                                   </div>
                                                 </div>
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Licence number
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1164,9 +1681,7 @@ class NewLicences extends PureComponent {
                                                   </div>
                                                 </div>
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Date acquired licence
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1175,15 +1690,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={moment(item.licensedate).format('LL')}
+                                                      value={moment(
+                                                        item.licensedate,
+                                                      ).format("LL")}
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Licence expiry date
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1192,15 +1707,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={moment(item.licenseexpdate).format('LL')}
+                                                      value={moment(
+                                                        item.licenseexpdate,
+                                                      ).format("LL")}
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Licence remarks
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1209,16 +1724,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="text"
-                                                      value={item.licenseremarks}
-                                                    >
-                                                    </textarea>
+                                                      value={
+                                                        item.licenseremarks
+                                                      }
+                                                    ></textarea>
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Date of birth
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1227,15 +1741,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={moment(item.DOB).format('LL')}
+                                                      value={moment(
+                                                        item.DOB,
+                                                      ).format("LL")}
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Previous surname
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1244,15 +1758,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.previoussurname}
+                                                      value={
+                                                        item.previoussurname
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Email
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1267,9 +1781,7 @@ class NewLicences extends PureComponent {
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Phone
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1278,15 +1790,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.contacttelephone}
+                                                      value={
+                                                        item.contacttelephone
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Tertiary Institution
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1295,15 +1807,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.tertiaryinstitution}
+                                                      value={
+                                                        item.tertiaryinstitution
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Course of Study
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1318,9 +1830,7 @@ class NewLicences extends PureComponent {
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Gender
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1335,9 +1845,7 @@ class NewLicences extends PureComponent {
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     LGA
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1352,9 +1860,7 @@ class NewLicences extends PureComponent {
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     State
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1369,9 +1875,7 @@ class NewLicences extends PureComponent {
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Nationality
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1386,9 +1890,7 @@ class NewLicences extends PureComponent {
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Practice category
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1397,7 +1899,9 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.practicecategory}
+                                                      value={
+                                                        item.practicecategory
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
@@ -1413,9 +1917,7 @@ class NewLicences extends PureComponent {
                                                 </label>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     First qualification
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1424,15 +1926,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="text"
-                                                      value={item.qualification1}
+                                                      value={
+                                                        item.qualification1
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Second qualification
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1441,15 +1943,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="text"
-                                                      value={item.qualification2}
+                                                      value={
+                                                        item.qualification2
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Third qualification
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1458,15 +1960,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="text"
-                                                      value={item.qualification3}
+                                                      value={
+                                                        item.qualification3
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Fourth qualification
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1475,15 +1977,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="text"
-                                                      value={item.qualification4}
+                                                      value={
+                                                        item.qualification4
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Fifth qualification
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1492,15 +1994,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="text"
-                                                      value={item.qualification5}
+                                                      value={
+                                                        item.qualification5
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Year of qualification
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1509,42 +2011,101 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.yearofqualification}
+                                                      value={
+                                                        item.yearofqualification
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
-
-                                                <label className="h5" htmlFor="floatingInputCustom">
-                                                  Qualification  Certificates
+                                                <label
+                                                  className="h5"
+                                                  htmlFor="floatingInputCustom"
+                                                >
+                                                  Qualification Certificates
                                                 </label>
 
-                                                <div style={{ flexDirection: 'row', alignItems: 'center', margin: 9, justifyContent: 'space-between', flexWrap: 'wrap' }}>
-
+                                                <div
+                                                  style={{
+                                                    flexDirection: "row",
+                                                    alignItems: "center",
+                                                    margin: 9,
+                                                    justifyContent:
+                                                      "space-between",
+                                                    flexWrap: "wrap",
+                                                  }}
+                                                >
                                                   <div>
-                                                    {item.qualificationimage1 ?
-                                                      <img crossorigin="anonymous" width='306' height='306' src={`${item.qualificationimage1}`} /> :
-                                                      <img src="../assets/images/image.jpeg" alt="No image uploaded for qualification 1" />
-                                                    }
+                                                    {item.qualificationimage1 ? (
+                                                      <img
+                                                        crossorigin="anonymous"
+                                                        width="306"
+                                                        height="306"
+                                                        src={`${item.qualificationimage1}`}
+                                                      />
+                                                    ) : (
+                                                      <img
+                                                        src="../assets/images/image.jpeg"
+                                                        alt="No image uploaded for qualification 1"
+                                                      />
+                                                    )}
                                                   </div>
 
+                                                  {item.qualificationimage2 ? (
+                                                    <img
+                                                      crossorigin="anonymous"
+                                                      width="306"
+                                                      height="306"
+                                                      src={`${item.qualificationimage2}`}
+                                                    />
+                                                  ) : (
+                                                    <img
+                                                      src="../assets/images/image.jpeg"
+                                                      alt="No image uploaded for qualification 2"
+                                                    />
+                                                  )}
 
-                                                  {item.qualificationimage2 ?
-                                                    <img crossorigin="anonymous" width='306' height='306' src={`${item.qualificationimage2}`} /> :
-                                                    <img src="../assets/images/image.jpeg" alt="No image uploaded for qualification 2" />}
+                                                  {item.qualificationimage3 ? (
+                                                    <img
+                                                      crossorigin="anonymous"
+                                                      width="306"
+                                                      height="306"
+                                                      src={`${item.qualificationimage3}`}
+                                                    />
+                                                  ) : (
+                                                    <img
+                                                      src="../assets/images/image.jpeg"
+                                                      alt="No image uploaded for qualification 3"
+                                                    />
+                                                  )}
 
+                                                  {item.qualificationimage4 ? (
+                                                    <img
+                                                      crossorigin="anonymous"
+                                                      width="306"
+                                                      height="306"
+                                                      src={`${item.qualificationimage4}`}
+                                                    />
+                                                  ) : (
+                                                    <img
+                                                      src="../assets/images/image.jpeg"
+                                                      alt="No image uploaded for qualification 4"
+                                                    />
+                                                  )}
 
-                                                  {item.qualificationimage3 ?
-                                                    <img crossorigin="anonymous" width='306' height='306' src={`${item.qualificationimage3}`} /> :
-                                                    <img src="../assets/images/image.jpeg" alt="No image uploaded for qualification 3" />}
-
-                                                  {item.qualificationimage4 ?
-                                                    <img crossorigin="anonymous" width='306' height='306' src={`${item.qualificationimage4}`} /> :
-                                                    <img src="../assets/images/image.jpeg" alt="No image uploaded for qualification 4" />}
-
-                                                  {item.qualificationimage5 ?
-                                                    <img crossorigin="anonymous" width='306' height='306' src={`${item.qualificationimage5}`} /> :
-                                                    <img src="../assets/images/image.jpeg" alt="No image uploaded for qualification 5" />}
+                                                  {item.qualificationimage5 ? (
+                                                    <img
+                                                      crossorigin="anonymous"
+                                                      width="306"
+                                                      height="306"
+                                                      src={`${item.qualificationimage5}`}
+                                                    />
+                                                  ) : (
+                                                    <img
+                                                      src="../assets/images/image.jpeg"
+                                                      alt="No image uploaded for qualification 5"
+                                                    />
+                                                  )}
                                                 </div>
 
                                                 <hr />
@@ -1558,9 +2119,7 @@ class NewLicences extends PureComponent {
                                                 </label>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Date acquired
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1569,15 +2128,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={moment(item.previouslicensedate).format('LL')}
+                                                      value={moment(
+                                                        item.previouslicensedate,
+                                                      ).format("LL")}
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Previous licence number
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1586,7 +2145,9 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.previouslicensenumber}
+                                                      value={
+                                                        item.previouslicensenumber
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
@@ -1601,9 +2162,7 @@ class NewLicences extends PureComponent {
                                                 </label>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Organization name
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1618,9 +2177,7 @@ class NewLicences extends PureComponent {
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Organization name
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1635,9 +2192,7 @@ class NewLicences extends PureComponent {
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Organization address
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1646,15 +2201,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.organizationaddress}
+                                                      value={
+                                                        item.organizationaddress
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Organization email
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1663,15 +2218,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.organizationemail}
+                                                      value={
+                                                        item.organizationemail
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Organization position
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1680,15 +2235,15 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.organizationposition}
+                                                      value={
+                                                        item.organizationposition
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Organization phone
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -1697,40 +2252,46 @@ class NewLicences extends PureComponent {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.organizationtelephone}
+                                                      value={
+                                                        item.organizationtelephone
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
-
                                               </div>
-
                                             </div>
-                                          )
+                                          );
                                         })}
                                       </div>
-                                    }
+                                    )}
                                   </div>
-                                  <span className="pt-3"><hr class="dark horizontal my-3" /></span>
+                                  <span className="pt-3">
+                                    <hr class="dark horizontal my-3" />
+                                  </span>
                                 </div>
                               </div>
                               <div class="modal-footer">
-                                <button type="button" data-bs-dismiss="modal" class="btn btn-danger">Close</button>
+                                <button
+                                  type="button"
+                                  data-bs-dismiss="modal"
+                                  class="btn btn-danger"
+                                >
+                                  Close
+                                </button>
                               </div>
                             </div>
                           </div>
-
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
             </main>
           </div>
         </div>
       </div>
-    )
+    );
   }
 }
 

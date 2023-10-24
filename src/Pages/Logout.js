@@ -1,6 +1,6 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent } from "react";
 import { Spinner } from "react-bootstrap";
-import Sidebar from '../Components/Sidebar';
+import Sidebar from "../Components/Sidebar";
 
 class Logout extends PureComponent {
   constructor(props) {
@@ -10,9 +10,9 @@ class Logout extends PureComponent {
     };
   }
 
-  componentDidMount(){
-      localStorage.clear();
-        this.props.history.push("/login")
+  componentDidMount() {
+    localStorage.clear();
+    this.props.history.push("/login");
   }
 
   render() {
@@ -36,8 +36,8 @@ class Logout extends PureComponent {
           </div>
         </div>
       </div>
-    )
-}
+    );
+  }
 }
 
-export default Logout
+export default Logout;

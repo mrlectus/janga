@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Swal from "sweetalert2";
 import { baseUrl } from "../Components/BaseUrl";
 import { Link } from "react-router-dom";
-import Sidebar from '../Components/Sidebar';
+import Sidebar from "../Components/Sidebar";
 import { Spinner } from "react-bootstrap";
 import "jquery/dist/jquery.min.js";
 import "datatables.net-dt/js/dataTables.dataTables";
@@ -13,11 +13,9 @@ import "datatables.net-buttons/js/buttons.flash.js";
 import "datatables.net-buttons/js/buttons.html5.js";
 import "datatables.net-buttons/js/buttons.print.js";
 // import $ from "jquery";
-import moment from 'moment';
+import moment from "moment";
 import ReactToPrint from "react-to-print";
 import { DownloadExcel } from "react-excel-export";
-
-
 
 class PrintPremisesRecord extends Component {
   constructor(props) {
@@ -30,10 +28,10 @@ class PrintPremisesRecord extends Component {
       premisesData: [],
       postsPerPage: 10,
       currentPage: 1,
-    }
+    };
   }
   print() {
-    window.print()
+    window.print();
   }
 
   downloadRecord = async () => {
@@ -47,18 +45,18 @@ class PrintPremisesRecord extends Component {
       },
     };
     await fetch(`${baseUrl}Premises/download`, obj)
-      .then(response => {
-        response.blob().then(blob => {
+      .then((response) => {
+        response.blob().then((blob) => {
           let url = window.URL.createObjectURL(blob);
-          let a = document.createElement('a');
+          let a = document.createElement("a");
           a.href = url;
-          a.download = 'premises.csv';
+          a.download = "premises.csv";
           a.click();
-          this.setState({ isDownloading: false })
+          this.setState({ isDownloading: false });
         });
       })
       .catch((error) => {
-        this.setState({ isDownloading: false })
+        this.setState({ isDownloading: false });
         Swal.fire({
           title: "Error!",
           text: error.message,
@@ -72,45 +70,50 @@ class PrintPremisesRecord extends Component {
     const url = `${baseUrl}Premises/getPremisesByUserID/${userid}`;
     this.setState({ isLoading: true });
     fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("token"),
       },
     })
-      .then(res => res.json())
-      .then(res => {
+      .then((res) => res.json())
+      .then((res) => {
         // console.warn(res)
         this.setState({
           isLoading: false,
           premisesData: res,
         });
-
-
       })
-      .catch(error => {
+      .catch((error) => {
         this.setState({ error: true, loading: false });
         alert(error);
       });
-  }
+  };
 
   showPagination = () => {
     const { postsPerPage, data, filteredData } = this.state;
     const pageNumbers = [];
     const totalPosts = filteredData.length;
     for (let i = 1; i <= Math.ceil(totalPosts / postsPerPage); i++) {
-      pageNumbers.push(i)
+      pageNumbers.push(i);
     }
     const paginate = (pageNumbers) => {
-      this.setState({ currentPage: pageNumbers })
-    }
+      this.setState({ currentPage: pageNumbers });
+    };
 
     return (
       <nav>
         <ul className="pagination">
-          {pageNumbers.map(number => (
-            <li key={number} className={this.state.currentPage === number ? 'page-item active' : 'page-item'}>
+          {pageNumbers.map((number) => (
+            <li
+              key={number}
+              className={
+                this.state.currentPage === number
+                  ? "page-item active"
+                  : "page-item"
+              }
+            >
               <button onClick={() => paginate(number)} className="page-link">
                 {number}
               </button>
@@ -118,8 +121,8 @@ class PrintPremisesRecord extends Component {
           ))}
         </ul>
       </nav>
-    )
-  }
+    );
+  };
 
   showPremises = async () => {
     this.setState({ loading: true });
@@ -213,7 +216,11 @@ class PrintPremisesRecord extends Component {
             this.props.history.push("/login");
           });
         } else {
-          this.setState({ data: responseJson, loading: false, filteredData: responseJson })
+          this.setState({
+            data: responseJson,
+            loading: false,
+            filteredData: responseJson,
+          });
         }
       })
       .catch((error) => {
@@ -226,32 +233,54 @@ class PrintPremisesRecord extends Component {
       });
   };
 
-
   showTable = () => {
     const { postsPerPage, currentPage, data, filteredData } = this.state;
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = parseInt(indexOfLastPost) - parseInt(postsPerPage);
     const currentPosts = filteredData.slice(indexOfFirstPost, indexOfLastPost);
     try {
-      return typeof (data) !== undefined && currentPosts.map((item, index) => {
-        return (
-          <tr>
-            <td className="text-xs text-capitalize font-weight-bold">{postsPerPage * (currentPage - 1) + index + 1}</td>
-            <td className="text-xs text-capitalize font-weight-bold">{(item.organisationname)}</td>
-            <td className="text-xs text-capitalize font-weight-bold">{(item.businesstype)}</td>
-            <td className={item.applicationstatus === "approved" ? 'badge bg-success mt-3' : item.applicationstatus == "pending" ? "badge bg-warning mt-3" : item.applicationstatus === "rejected" ? 'badge bg-danger mt-3' : ""}>{(item.applicationstatus)}</td>
-            <td className="text-xs text-capitalize font-weight-bold">{(item.applicationdate)}</td>
+      return (
+        typeof data !== undefined &&
+        currentPosts.map((item, index) => {
+          return (
+            <tr>
+              <td className="text-xs text-capitalize font-weight-bold">
+                {postsPerPage * (currentPage - 1) + index + 1}
+              </td>
+              <td className="text-xs text-capitalize font-weight-bold">
+                {item.organisationname}
+              </td>
+              <td className="text-xs text-capitalize font-weight-bold">
+                {item.businesstype}
+              </td>
+              <td
+                className={
+                  item.applicationstatus === "approved"
+                    ? "badge bg-success mt-3"
+                    : item.applicationstatus == "pending"
+                    ? "badge bg-warning mt-3"
+                    : item.applicationstatus === "rejected"
+                    ? "badge bg-danger mt-3"
+                    : ""
+                }
+              >
+                {item.applicationstatus}
+              </td>
+              <td className="text-xs text-capitalize font-weight-bold">
+                {item.applicationdate}
+              </td>
 
-            <td></td>
-          </tr>
-        );
-      });
+              <td></td>
+            </tr>
+          );
+        })
+      );
     } catch (e) {
       Swal.fire({
         title: "Error",
         text: e.message,
         type: "error",
-      })
+      });
     }
   };
 
@@ -262,14 +291,15 @@ class PrintPremisesRecord extends Component {
   handleFilterChange = (e) => {
     const filterValue = e.target.value;
     this.setState({ filterValue }, () => {
-      const filteredData = this.state?.data?.filter(item =>
-        item?.organisationname?.toLowerCase()?.includes(filterValue?.toLowerCase())
-
+      const filteredData = this.state?.data?.filter((item) =>
+        item?.organisationname
+          ?.toLowerCase()
+          ?.includes(filterValue?.toLowerCase()),
       );
       this.setState({ filteredData });
     });
+    this.setState({ currentPage: 1 });
   };
-
 
   render() {
     const { isLoading } = this.state;
@@ -280,20 +310,39 @@ class PrintPremisesRecord extends Component {
             <Sidebar />
           </div>
           <div className="col-md-10">
-            <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg " id="dashboard">
+            <main
+              class="main-content position-relative max-height-vh-100 h-100 border-radius-lg "
+              id="dashboard"
+            >
               <div class="container-fluid px-4">
                 <div class="rown">
                   <div class="col-12">
                     <div class="card my-3">
                       <div class="card-header pb-4 bg-light">
                         <div class="d-flex flex-wrap align-items-center justify-content-between">
-                          <h5 className="text-dark">All Premises Applications</h5>
+                          <h5 className="text-dark">
+                            All Premises Applications
+                          </h5>
                           <div class="d-flex flex-wrap align-items-center justify-content-between">
-                            <button className="text-dark btn btn-light btn-lg" style={{ marginRight: 18 }} onClick={() => this.print()}>Print</button>
+                            <button
+                              className="text-dark btn btn-light btn-lg"
+                              style={{ marginRight: 18 }}
+                              onClick={() => this.print()}
+                            >
+                              Print
+                            </button>
 
-                            <button disabled={this.state.loading} onClick={() => this.downloadRecord()} className="btn btn-lg btn-primary">
+                            <button
+                              disabled={this.state.loading}
+                              onClick={() => this.downloadRecord()}
+                              className="btn btn-lg btn-primary"
+                            >
                               {this.state.isDownloading ? (
-                                <Spinner animation="border" variant="light" size="sm" />
+                                <Spinner
+                                  animation="border"
+                                  variant="light"
+                                  size="sm"
+                                />
                               ) : (
                                 "Export as Excel"
                               )}
@@ -303,51 +352,112 @@ class PrintPremisesRecord extends Component {
                       </div>
 
                       <div class="card-body">
-
-                        {this.state.loading ? <Spinner animation="border" style={{ position: 'relative', left: 450, top: 0 }} className="text-center" variant="success" size="lg" /> :
+                        {this.state.loading ? (
+                          <Spinner
+                            animation="border"
+                            style={{ position: "relative", left: 450, top: 0 }}
+                            className="text-center"
+                            variant="success"
+                            size="lg"
+                          />
+                        ) : (
                           <div class="container-fluid py-4">
                             <div className="d-flex justify-content-end">
-                              <input onChange={this.handleFilterChange} type="text" id="myInput" className="outline-none h-10 m-2" placeholder="Search for org.." title="Type in a name" />
+                              <input
+                                onChange={this.handleFilterChange}
+                                type="text"
+                                id="myInput"
+                                className="outline-none h-10 m-2"
+                                placeholder="Search for org.."
+                                title="Type in a name"
+                              />
                             </div>
                             <div class="table-responsive p-0 pb-2">
-                              <table id="table" className="table align-items-center justify-content-center mb-0">
+                              <table
+                                id="table"
+                                className="table align-items-center justify-content-center mb-0"
+                              >
                                 <thead>
                                   <tr>
-                                    <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">S/N</th>
-                                    <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">Organization</th>
-                                    <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">Business Type</th>
-                                    <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">Application Status</th>
-                                    <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">Application Date</th>
+                                    <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">
+                                      S/N
+                                    </th>
+                                    <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">
+                                      Organization
+                                    </th>
+                                    <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">
+                                      Business Type
+                                    </th>
+                                    <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">
+                                      Application Status
+                                    </th>
+                                    <th className="text-capitalize text-secondary text-sm font-weight-bolder opacity-7 ps-2">
+                                      Application Date
+                                    </th>
                                     <th></th>
                                   </tr>
                                 </thead>
 
-                                <tbody>
-                                  {this.showTable()}
-                                </tbody>
+                                <tbody>{this.showTable()}</tbody>
                               </table>
                             </div>
-                            <div style={{ float: 'right' }}>
+                            <div style={{ float: "right" }}>
                               {this.showPagination()}
                             </div>
                           </div>
-                        }
+                        )}
                         {/* <Footer /> */}
                         {/* View Modal */}
-                        <div className="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div
+                          className="modal fade"
+                          id="exampleModal1"
+                          tabindex="-1"
+                          aria-labelledby="exampleModalLabel"
+                          aria-hidden="true"
+                        >
                           <div className="modal-dialog modal-xl">
                             <div className="modal-content">
-                              <div className="modal-header d-flex align-items-center justify-content-between" style={{ backgroundColor: '#00264C' }}>
-                                <h5 className="modal-title text-light">Premises Details</h5>
-                                <button type="button" className="btn btn-link m-0 p-0 text-light fs-4" data-bs-dismiss="modal" aria-label="Close"><span class="iconify" data-icon="carbon:close"></span></button>
+                              <div
+                                className="modal-header d-flex align-items-center justify-content-between"
+                                style={{ backgroundColor: "#00264C" }}
+                              >
+                                <h5 className="modal-title text-light">
+                                  Premises Details
+                                </h5>
+                                <button
+                                  type="button"
+                                  className="btn btn-link m-0 p-0 text-light fs-4"
+                                  data-bs-dismiss="modal"
+                                  aria-label="Close"
+                                >
+                                  <span
+                                    class="iconify"
+                                    data-icon="carbon:close"
+                                  ></span>
+                                </button>
                               </div>
                               <div className="modal-body">
                                 <div className="row">
                                   <div clasNames="d-flex px-3">
                                     <div className="my-auto text-center">
-                                      <img src="../assets/img/account.svg" className="avatar avatar-exbg  me-4 " />
+                                      <img
+                                        src="../assets/img/account.svg"
+                                        className="avatar avatar-exbg  me-4 "
+                                      />
                                     </div>
-                                    {isLoading ? <Spinner animation="border" style={{ position: 'relative', left: 680, top: 250 }} className="text-center" variant="success" size="lg" /> :
+                                    {isLoading ? (
+                                      <Spinner
+                                        animation="border"
+                                        style={{
+                                          position: "relative",
+                                          left: 680,
+                                          top: 250,
+                                        }}
+                                        className="text-center"
+                                        variant="success"
+                                        size="lg"
+                                      />
+                                    ) : (
                                       <div className="d-flex flex-column">
                                         {/*<h6 className="text-lg font-weight-normal mb-1">
                              <span className="font-weight-bold">NiCFOsT</span>
@@ -355,15 +465,16 @@ class PrintPremisesRecord extends Component {
                                         {this.state.premisesData.map((item) => {
                                           return (
                                             <div>
-                                              <h4 className="text-dark text-uppercase ms-sm-4 ">{item.organisationname}</h4>
-                                              <span className="pt-3"><hr class="dark horizontal my-3" /></span>
+                                              <h4 className="text-dark text-uppercase ms-sm-4 ">
+                                                {item.organisationname}
+                                              </h4>
+                                              <span className="pt-3">
+                                                <hr class="dark horizontal my-3" />
+                                              </span>
 
                                               <div className="row">
-
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Registration number
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -372,15 +483,15 @@ class PrintPremisesRecord extends Component {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.registrationnumber}
+                                                      value={
+                                                        item.registrationnumber
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Application date
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -389,15 +500,15 @@ class PrintPremisesRecord extends Component {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={moment(item.applicationdate).format('LL')}
+                                                      value={moment(
+                                                        item.applicationdate,
+                                                      ).format("LL")}
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Application status
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -406,15 +517,15 @@ class PrintPremisesRecord extends Component {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.applicationstatus}
+                                                      value={
+                                                        item.applicationstatus
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Date acquired licence
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -423,15 +534,15 @@ class PrintPremisesRecord extends Component {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={moment(item.licensedate).format('LL')}
+                                                      value={moment(
+                                                        item.licensedate,
+                                                      ).format("LL")}
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Business type
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -446,9 +557,7 @@ class PrintPremisesRecord extends Component {
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Business description
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -457,15 +566,15 @@ class PrintPremisesRecord extends Component {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.businessdescription}
+                                                      value={
+                                                        item.businessdescription
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Product brands
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -489,9 +598,7 @@ class PrintPremisesRecord extends Component {
                                                 </label>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Inspection date
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -500,15 +607,15 @@ class PrintPremisesRecord extends Component {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={moment(item.inspectiondate).format('LL')}
+                                                      value={moment(
+                                                        item.inspectiondate,
+                                                      ).format("LL")}
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Inspection fees
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -517,15 +624,15 @@ class PrintPremisesRecord extends Component {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.inspectionfees}
+                                                      value={
+                                                        item.inspectionfees
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Inspection follow-up
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -534,15 +641,15 @@ class PrintPremisesRecord extends Component {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.inspectionfollowup}
+                                                      value={
+                                                        item.inspectionfollowup
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Inspection fees
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -551,15 +658,15 @@ class PrintPremisesRecord extends Component {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.inspectionfees}
+                                                      value={
+                                                        item.inspectionfees
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Inspection status
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -568,16 +675,17 @@ class PrintPremisesRecord extends Component {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.inspectionstatus}
+                                                      value={
+                                                        item.inspectionstatus
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
-                                                    Inspection team leader's name
+                                                  <label className="form-label">
+                                                    Inspection team leader's
+                                                    name
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
                                                     <label className="form-label"></label>
@@ -585,16 +693,17 @@ class PrintPremisesRecord extends Component {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.inspectionteamleadername}
+                                                      value={
+                                                        item.inspectionteamleadername
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
-                                                    Inspection team leader's comment
+                                                  <label className="form-label">
+                                                    Inspection team leader's
+                                                    comment
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
                                                     <label className="form-label"></label>
@@ -602,7 +711,9 @@ class PrintPremisesRecord extends Component {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.inspectionteamleadercomment}
+                                                      value={
+                                                        item.inspectionteamleadercomment
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
@@ -617,9 +728,7 @@ class PrintPremisesRecord extends Component {
                                                 </label>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Lead food scientist's name
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -628,16 +737,17 @@ class PrintPremisesRecord extends Component {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.leadfoodscientistname}
+                                                      value={
+                                                        item.leadfoodscientistname
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
-                                                    Lead food scientist's licence number
+                                                  <label className="form-label">
+                                                    Lead food scientist's
+                                                    licence number
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
                                                     <label className="form-label"></label>
@@ -645,15 +755,15 @@ class PrintPremisesRecord extends Component {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.leadfoodscientistlicensenumber}
+                                                      value={
+                                                        item.leadfoodscientistlicensenumber
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     LGA
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -668,9 +778,7 @@ class PrintPremisesRecord extends Component {
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Nationality
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -685,9 +793,7 @@ class PrintPremisesRecord extends Component {
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Address
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -696,15 +802,15 @@ class PrintPremisesRecord extends Component {
                                                       className="form-control shadow-none"
                                                       disabled
                                                       type="phone"
-                                                      value={item.locationaddress}
+                                                      value={
+                                                        item.locationaddress
+                                                      }
                                                     />
                                                   </div>
                                                 </div>
 
                                                 <div className="col-sm-6 col-lg-4 col-md-4 mb-3">
-                                                  <label
-                                                    className="form-label"
-                                                  >
+                                                  <label className="form-label">
                                                     Gender
                                                   </label>
                                                   <div className="input-group input-group-outline mb-3">
@@ -717,16 +823,16 @@ class PrintPremisesRecord extends Component {
                                                     />
                                                   </div>
                                                 </div>
-
                                               </div>
-
                                             </div>
-                                          )
+                                          );
                                         })}
                                       </div>
-                                    }
+                                    )}
                                   </div>
-                                  <span className="pt-3"><hr class="dark horizontal my-3" /></span>
+                                  <span className="pt-3">
+                                    <hr class="dark horizontal my-3" />
+                                  </span>
 
                                   {/*
                        <div className="d-flex flex-column px-3">
@@ -740,7 +846,13 @@ class PrintPremisesRecord extends Component {
                                 </div>
                               </div>
                               <div class="modal-footer">
-                                <button type="button" data-bs-dismiss="modal" class="btn btn-primary">Close</button>
+                                <button
+                                  type="button"
+                                  data-bs-dismiss="modal"
+                                  class="btn btn-primary"
+                                >
+                                  Close
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -754,7 +866,7 @@ class PrintPremisesRecord extends Component {
           </div>
         </div>
       </div>
-    )
+    );
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import { DownloadExcel } from "react-excel-export";
 
 const books = [
@@ -28,18 +28,17 @@ const books = [
   },
 ];
 
-
 class Excel extends Component {
-  render(){
-    return(
+  render() {
+    return (
       <DownloadExcel
         data={books}
         buttonLabel="Export Data"
         fileName="sample-file"
         className="export-button"
       />
-    )
+    );
   }
 }
 
-export default Excel
+export default Excel;
