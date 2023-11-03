@@ -512,40 +512,86 @@ class NewFoodScientistRegistrations extends PureComponent {
       });
   };
 
-  showPagination = () => {
-    const { postsPerPage, data, filteredData } = this.state;
-    const pageNumbers = [];
-    const totalPosts = filteredData.length;
-    for (let i = 1; i <= Math.ceil(totalPosts / postsPerPage); i++) {
-      pageNumbers.push(i);
+
+showPagination = () => {
+  const { postsPerPage, data, currentPage } = this.state;
+  const totalPosts = data.length;
+  const totalPages = Math.ceil(totalPosts / postsPerPage);
+
+  const maxVisiblePages = 5; // Maximum number of visible page buttons
+  const pageNumbers = [];
+  let startPage, endPage;
+
+  if (totalPages <= maxVisiblePages) {
+    // If total pages are less than or equal to maxVisiblePages, show all pages.
+    startPage = 1;
+    endPage = totalPages;
+  } else {
+    // Calculate the start and end page numbers based on current page and maxVisiblePages.
+    if (currentPage <= Math.ceil(maxVisiblePages / 2)) {
+      startPage = 1;
+      endPage = maxVisiblePages;
+    } else if (currentPage + Math.floor(maxVisiblePages / 2) >= totalPages) {
+      startPage = totalPages - maxVisiblePages + 1;
+      endPage = totalPages;
+    } else {
+      startPage = currentPage - Math.floor(maxVisiblePages / 2);
+      endPage = currentPage + Math.floor(maxVisiblePages / 2);
     }
+  }
 
-    const paginate = (pageNumbers) => {
-      console.log(pageNumbers);
-      this.setState({ currentPage: pageNumbers });
-    };
+  for (let i = startPage; i <= endPage; i++) {
+    pageNumbers.push(i);
+  }
 
-    return (
-      <nav>
-        <ul className="pagination">
-          {pageNumbers.map((number) => (
-            <li
-              key={number}
-              className={
-                this.state.currentPage === number
-                  ? "page-item active"
-                  : "page-item"
-              }
-            >
-              <button onClick={() => paginate(number)} className="page-link">
-                {number}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    );
+  const goToPage = (page) => {
+    this.setState({ currentPage: page });
   };
+
+  return (
+    <nav>
+      <ul className="pagination">
+        {startPage > 1 && (
+          <li key={1} className="page-item">
+            <button onClick={() => goToPage(1)} className="page-link">
+              1
+            </button>
+          </li>
+        )}
+        {startPage > 2 && (
+          <li className="page-item disabled">
+            <span className="page-link">...</span>
+          </li>
+        )}
+        {pageNumbers.map((number) => (
+          <li
+            key={number}
+            className={
+              currentPage === number ? "page-item active" : "page-item"
+            }
+          >
+            <button onClick={() => goToPage(number)} className="page-link">
+              {number}
+            </button>
+          </li>
+        ))}
+        {endPage < totalPages - 1 && (
+          <li className="page-item disabled">
+            <span className="page-link">...</span>
+          </li>
+        )}
+        {endPage < totalPages && (
+          <li key={totalPages} className="page-item">
+            <button onClick={() => goToPage(totalPages)} className="page-link">
+              {totalPages}
+            </button>
+          </li>
+        )}
+      </ul>
+    </nav>
+  );
+};
+
 
   showTable = () => {
     const { postsPerPage, currentPage, data, filteredData } = this.state;

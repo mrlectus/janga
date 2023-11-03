@@ -159,34 +159,79 @@ class AllFoodScientists extends Component {
   };
 
   showPagination = () => {
-    const { postsPerPage, data } = this.state;
-    const pageNumbers = [];
+    const { postsPerPage, data, currentPage } = this.state;
     const totalPosts = data.length;
-    for (let i = 1; i <= Math.ceil(totalPosts / postsPerPage); i++) {
+    const totalPages = Math.ceil(totalPosts / postsPerPage);
+
+    const maxVisiblePages = 5; // Maximum number of visible page buttons
+    const pageNumbers = [];
+    let startPage, endPage;
+
+    if (totalPages <= maxVisiblePages) {
+      // If total pages are less than or equal to maxVisiblePages, show all pages.
+      startPage = 1;
+      endPage = totalPages;
+    } else {
+      // Calculate the start and end page numbers based on current page and maxVisiblePages.
+      if (currentPage <= Math.ceil(maxVisiblePages / 2)) {
+        startPage = 1;
+        endPage = maxVisiblePages;
+      } else if (currentPage + Math.floor(maxVisiblePages / 2) >= totalPages) {
+        startPage = totalPages - maxVisiblePages + 1;
+        endPage = totalPages;
+      } else {
+        startPage = currentPage - Math.floor(maxVisiblePages / 2);
+        endPage = currentPage + Math.floor(maxVisiblePages / 2);
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(i);
     }
 
-    const paginate = (pageNumbers) => {
-      this.setState({ currentPage: pageNumbers });
+    const goToPage = (page) => {
+      this.setState({ currentPage: page });
     };
 
     return (
       <nav>
         <ul className="pagination">
+          {startPage > 1 && (
+            <li key={1} className="page-item">
+              <button onClick={() => goToPage(1)} className="page-link">
+                1
+              </button>
+            </li>
+          )}
+          {startPage > 2 && (
+            <li className="page-item disabled">
+              <span className="page-link">...</span>
+            </li>
+          )}
           {pageNumbers.map((number) => (
             <li
               key={number}
               className={
-                this.state.currentPage === number
-                  ? "page-item active"
-                  : "page-item"
+                currentPage === number ? "page-item active" : "page-item"
               }
             >
-              <button onClick={() => paginate(number)} className="page-link">
+              <button onClick={() => goToPage(number)} className="page-link">
                 {number}
               </button>
             </li>
           ))}
+          {endPage < totalPages - 1 && (
+            <li className="page-item disabled">
+              <span className="page-link">...</span>
+            </li>
+          )}
+          {endPage < totalPages && (
+            <li key={totalPages} className="page-item">
+              <button onClick={() => goToPage(totalPages)} className="page-link">
+                {totalPages}
+              </button>
+            </li>
+          )}
         </ul>
       </nav>
     );
@@ -218,10 +263,10 @@ class AllFoodScientists extends Component {
                   item.applicationstatus === "approved"
                     ? "badge bg-success mt-3"
                     : item.applicationstatus == "pending"
-                    ? "badge bg-warning mt-3"
-                    : item.applicationstatus === "rejected"
-                    ? "badge bg-danger mt-3"
-                    : ""
+                      ? "badge bg-warning mt-3"
+                      : item.applicationstatus === "rejected"
+                        ? "badge bg-danger mt-3"
+                        : ""
                 }
               >
                 {item.applicationstatus}
@@ -327,7 +372,7 @@ class AllFoodScientists extends Component {
                   <div class="card-header pb-4 bg-success">
                     <div class="d-flex flex-wrap align-items-center justify-content-between">
                       <h5 className="text-light font-weight-bold">
-                        All Registered Foods Scientists
+                        All  Registered Foods Scientists
                       </h5>
                       {/*<div class="d-flex align-items-center">
                      <button class="btn bg-primary text-light font-weight-bold mb-0"  data-bs-toggle="modal" data-bs-target="#exampleModal" > <span class="iconify" data-icon="carbon:add" style={{fontSize: 'large'}}></span>Create User</button>
@@ -1227,15 +1272,15 @@ class AllFoodScientists extends Component {
                                                           <input
                                                             className={
                                                               item.applicationstatus ===
-                                                              "approved"
+                                                                "approved"
                                                                 ? "form-control shadow-none bg-success text-center text-uppercase font-weight-bold text-light"
                                                                 : item.applicationstatus ===
                                                                   "pending"
-                                                                ? "form-control text-center text-uppercase font-weight-bold text-light shadow-none bg-warning"
-                                                                : item.applicationstatus ===
-                                                                  "rejected"
-                                                                ? "form-control text-center text-uppercase font-weight-bold text-light shadow-none bg-danger"
-                                                                : "form-control shadow-none"
+                                                                  ? "form-control text-center text-uppercase font-weight-bold text-light shadow-none bg-warning"
+                                                                  : item.applicationstatus ===
+                                                                    "rejected"
+                                                                    ? "form-control text-center text-uppercase font-weight-bold text-light shadow-none bg-danger"
+                                                                    : "form-control shadow-none"
                                                             }
                                                             type="text"
                                                             value={
@@ -1294,188 +1339,188 @@ class AllFoodScientists extends Component {
                                                       {!localStorage.getItem(
                                                         "userid",
                                                       ) && (
-                                                        <label
-                                                          className="h4"
-                                                          htmlFor="floatingInputCustom"
-                                                          style={{
-                                                            color: "#145973",
-                                                          }}
-                                                        >
-                                                          Create Login Details{" "}
-                                                          <br />
-                                                          <span
-                                                            className="text-danger"
-                                                            style={{
-                                                              fontSize: 18,
-                                                            }}
-                                                          >
-                                                            Use this account to
-                                                            login to your
-                                                            dashboard for
-                                                            tracking, renewal
-                                                            and subsequent
-                                                            applications.
-                                                          </span>
-                                                          <br />
-                                                          <br />
-                                                        </label>
-                                                      )}
-                                                      {!localStorage.getItem(
-                                                        "userid",
-                                                      ) && <br />}
-                                                      {!localStorage.getItem(
-                                                        "userid",
-                                                      ) && <br />}
-
-                                                      {!localStorage.getItem(
-                                                        "userid",
-                                                      ) && (
-                                                        <div
-                                                          className="col-sm-6 col-lg-4 col-md-6 mb-3"
-                                                          style={{
-                                                            display: "none",
-                                                          }}
-                                                        >
                                                           <label
+                                                            className="h4"
+                                                            htmlFor="floatingInputCustom"
                                                             style={{
-                                                              color:
-                                                                this.state
-                                                                  .colorCountryCode,
+                                                              color: "#145973",
                                                             }}
-                                                            className="form-label"
                                                           >
-                                                            Country{" "}
-                                                            <span className="text-danger">
-                                                              *
-                                                            </span>
-                                                          </label>
-                                                          <div className="input-group input-group-outline mb-3">
-                                                            <label className="form-label"></label>
-                                                            <select
-                                                              className="form-control shadow-none"
-                                                              aria-label="Floating label select example"
-                                                              onChange={
-                                                                this
-                                                                  .handleCountryChange
-                                                              }
+                                                            Create Login Details{" "}
+                                                            <br />
+                                                            <span
+                                                              className="text-danger"
+                                                              style={{
+                                                                fontSize: 18,
+                                                              }}
                                                             >
-                                                              <option
-                                                                value="choose"
-                                                                selected="selected"
+                                                              Use this account to
+                                                              login to your
+                                                              dashboard for
+                                                              tracking, renewal
+                                                              and subsequent
+                                                              applications.
+                                                            </span>
+                                                            <br />
+                                                            <br />
+                                                          </label>
+                                                        )}
+                                                      {!localStorage.getItem(
+                                                        "userid",
+                                                      ) && <br />}
+                                                      {!localStorage.getItem(
+                                                        "userid",
+                                                      ) && <br />}
+
+                                                      {!localStorage.getItem(
+                                                        "userid",
+                                                      ) && (
+                                                          <div
+                                                            className="col-sm-6 col-lg-4 col-md-6 mb-3"
+                                                            style={{
+                                                              display: "none",
+                                                            }}
+                                                          >
+                                                            <label
+                                                              style={{
+                                                                color:
+                                                                  this.state
+                                                                    .colorCountryCode,
+                                                              }}
+                                                              className="form-label"
+                                                            >
+                                                              Country{" "}
+                                                              <span className="text-danger">
+                                                                *
+                                                              </span>
+                                                            </label>
+                                                            <div className="input-group input-group-outline mb-3">
+                                                              <label className="form-label"></label>
+                                                              <select
+                                                                className="form-control shadow-none"
+                                                                aria-label="Floating label select example"
+                                                                onChange={
+                                                                  this
+                                                                    .handleCountryChange
+                                                                }
                                                               >
-                                                                -- Select
-                                                                country code --
-                                                              </option>
-                                                              {this.getCountry()}
-                                                            </select>
+                                                                <option
+                                                                  value="choose"
+                                                                  selected="selected"
+                                                                >
+                                                                  -- Select
+                                                                  country code --
+                                                                </option>
+                                                                {this.getCountry()}
+                                                              </select>
+                                                            </div>
                                                           </div>
-                                                        </div>
-                                                      )}
+                                                        )}
 
                                                       {!localStorage.getItem(
                                                         "userid",
                                                       ) && (
-                                                        <div className="col-sm-6 col-lg-4 col-md-6 mb-3">
-                                                          <label
-                                                            style={{
-                                                              color:
-                                                                this.state
-                                                                  .colorPhone,
-                                                            }}
-                                                            className="form-label"
-                                                          >
-                                                            Phone{" "}
-                                                            <span className="text-danger">
-                                                              *
-                                                            </span>
-                                                          </label>
-                                                          <div className="input-group input-group-outline mb-3">
-                                                            <label className="form-label"></label>
-                                                            <input
-                                                              className="form-control shadow-none"
-                                                              type="phone"
-                                                              required="required"
-                                                              onChange={(e) =>
-                                                                this.setState({
-                                                                  phone:
-                                                                    e.target
-                                                                      .value,
-                                                                })
-                                                              }
-                                                            />
+                                                          <div className="col-sm-6 col-lg-4 col-md-6 mb-3">
+                                                            <label
+                                                              style={{
+                                                                color:
+                                                                  this.state
+                                                                    .colorPhone,
+                                                              }}
+                                                              className="form-label"
+                                                            >
+                                                              Phone{" "}
+                                                              <span className="text-danger">
+                                                                *
+                                                              </span>
+                                                            </label>
+                                                            <div className="input-group input-group-outline mb-3">
+                                                              <label className="form-label"></label>
+                                                              <input
+                                                                className="form-control shadow-none"
+                                                                type="phone"
+                                                                required="required"
+                                                                onChange={(e) =>
+                                                                  this.setState({
+                                                                    phone:
+                                                                      e.target
+                                                                        .value,
+                                                                  })
+                                                                }
+                                                              />
+                                                            </div>
                                                           </div>
-                                                        </div>
-                                                      )}
+                                                        )}
 
                                                       {!localStorage.getItem(
                                                         "userid",
                                                       ) && (
-                                                        <div className="col-sm-6 col-lg-4 col-md-6 mb-3">
-                                                          <label
-                                                            style={{
-                                                              color:
-                                                                this.state
-                                                                  .colorPassword,
-                                                            }}
-                                                            className="form-label"
-                                                          >
-                                                            Pasword{" "}
-                                                            <span className="text-danger">
-                                                              *
-                                                            </span>
-                                                          </label>
-                                                          <div className="input-group input-group-outline mb-3">
-                                                            <label className="form-label"></label>
-                                                            <input
-                                                              className="form-control shadow-none"
-                                                              type="text"
-                                                              required="required"
-                                                              onChange={(e) =>
-                                                                this.setState({
-                                                                  password:
-                                                                    e.target
-                                                                      .value,
-                                                                })
-                                                              }
-                                                            />
+                                                          <div className="col-sm-6 col-lg-4 col-md-6 mb-3">
+                                                            <label
+                                                              style={{
+                                                                color:
+                                                                  this.state
+                                                                    .colorPassword,
+                                                              }}
+                                                              className="form-label"
+                                                            >
+                                                              Pasword{" "}
+                                                              <span className="text-danger">
+                                                                *
+                                                              </span>
+                                                            </label>
+                                                            <div className="input-group input-group-outline mb-3">
+                                                              <label className="form-label"></label>
+                                                              <input
+                                                                className="form-control shadow-none"
+                                                                type="text"
+                                                                required="required"
+                                                                onChange={(e) =>
+                                                                  this.setState({
+                                                                    password:
+                                                                      e.target
+                                                                        .value,
+                                                                  })
+                                                                }
+                                                              />
+                                                            </div>
                                                           </div>
-                                                        </div>
-                                                      )}
+                                                        )}
 
                                                       {!localStorage.getItem(
                                                         "userid",
                                                       ) && (
-                                                        <div className="col-sm-6 col-lg-4 col-md-6 mb-3">
-                                                          <label
-                                                            style={{
-                                                              color:
-                                                                this.state
-                                                                  .colorPasswordConf,
-                                                            }}
-                                                            className="form-label"
-                                                          >
-                                                            Confirm Pasword{" "}
-                                                            <span className="text-danger">
-                                                              *
-                                                            </span>
-                                                          </label>
-                                                          <div className="input-group input-group-outline mb-3">
-                                                            <label className="form-label"></label>
-                                                            <input
-                                                              className="form-control shadow-none"
-                                                              type="text"
-                                                              required="required"
-                                                              onChange={(e) =>
-                                                                this.setState({
-                                                                  confirmPassword:
-                                                                    e.target
-                                                                      .value,
-                                                                })
-                                                              }
-                                                            />
+                                                          <div className="col-sm-6 col-lg-4 col-md-6 mb-3">
+                                                            <label
+                                                              style={{
+                                                                color:
+                                                                  this.state
+                                                                    .colorPasswordConf,
+                                                              }}
+                                                              className="form-label"
+                                                            >
+                                                              Confirm Pasword{" "}
+                                                              <span className="text-danger">
+                                                                *
+                                                              </span>
+                                                            </label>
+                                                            <div className="input-group input-group-outline mb-3">
+                                                              <label className="form-label"></label>
+                                                              <input
+                                                                className="form-control shadow-none"
+                                                                type="text"
+                                                                required="required"
+                                                                onChange={(e) =>
+                                                                  this.setState({
+                                                                    confirmPassword:
+                                                                      e.target
+                                                                        .value,
+                                                                  })
+                                                                }
+                                                              />
+                                                            </div>
                                                           </div>
-                                                        </div>
-                                                      )}
+                                                        )}
                                                     </form>
                                                   </div>
                                                 </div>
